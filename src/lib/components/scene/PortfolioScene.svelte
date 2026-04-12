@@ -4,6 +4,7 @@
 	import Desk from './Desk.svelte'
 	import Computer from './Computer.svelte'
 	import Keyboard from './Keyboard.svelte'
+	import Lamp from './Lamp.svelte'
 
 	interactivity()
 	let isMonitorOn = $state(false)
@@ -29,6 +30,7 @@
 <Desk />
 <Computer onSelect={handleMonitorClick} onPowerChange={handleMonitorPowerChange} />
 <Keyboard {isMonitorOn} />
+<Lamp />
 
 <!-- <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
 	<T.PlaneGeometry args={[20, 20]} />
