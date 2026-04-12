@@ -19,4 +19,8 @@
 	distance={1.35}
 	decay={2}
 	color="#ffd8a8"
+	castShadow
+	shadow-mapSize-width={1024}
+	shadow-mapSize-height={1024}
+	shadow-bias={-0.00008}
 />

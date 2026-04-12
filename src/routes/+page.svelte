@@ -4,7 +4,7 @@
 </script>
 
 <div class="page">
-	<Canvas>
+	<Canvas shadows>
 		<PortfolioScene />
 	</Canvas>
 </div>
