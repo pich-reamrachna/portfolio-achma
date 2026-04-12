@@ -1,3 +1,17 @@
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+  import { Canvas } from '@threlte/core'
+  import PortfolioScene from '$lib/components/scene/PortfolioScene.svelte'
+</script>
+
+<div class="page">
+  <Canvas>
+    <PortfolioScene />
+  </Canvas>
+</div>
+
+<style>
+  .page {
+    width: 100%;
+    height: 100vh;
+  }
+</style>
