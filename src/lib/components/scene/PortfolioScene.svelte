@@ -3,6 +3,7 @@
 	import { interactivity } from '@threlte/extras'
 	import Desk from './Desk.svelte'
 	import Computer from './Computer.svelte'
+	import Keyboard from './Keyboard.svelte'
 
 	interactivity()
 	let isMonitorOn = $state(false)
@@ -27,6 +28,7 @@
 
 <Desk />
 <Computer onSelect={handleMonitorClick} onPowerChange={handleMonitorPowerChange} />
+<Keyboard {isMonitorOn} />
 
 <!-- <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
 	<T.PlaneGeometry args={[20, 20]} />
