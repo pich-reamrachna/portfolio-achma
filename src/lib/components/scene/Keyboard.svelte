@@ -24,14 +24,14 @@
 		if (!materials) return
 
 		const baseColor = isMonitorOn ? '#d6d8dc' : '#5a6068'
-		const emissiveColor = isMonitorOn ? '#10161f' : '#000000'
+		const emissiveColor = isMonitorOn ? '#1a2333' : '#000000'
 
 		for (const material of Object.values(materials)) {
 			if (!material) continue
 			if (material.color) material.color.set(baseColor)
 			if (material.emissive) material.emissive.set(emissiveColor)
 			if (typeof material.emissiveIntensity === 'number')
-				material.emissiveIntensity = isMonitorOn ? 0.05 : 0
+				material.emissiveIntensity = isMonitorOn ? 0.08 : 0
 			if (typeof material.roughness === 'number') material.roughness = isMonitorOn ? 0.72 : 0.8
 			if (typeof material.metalness === 'number') material.metalness = 0.08
 			if (typeof material.envMapIntensity === 'number')

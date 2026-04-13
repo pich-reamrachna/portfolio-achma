@@ -37,6 +37,15 @@
 	const applyColor = () => {
 		if (!materials) return
 		const allMaterials = Object.values(materials)
+		const screenKeywords = ['screen', 'display', 'lcd', 'panel']
+		const bodyKeywords = ['stand', 'base', 'bezel', 'frame', 'body', 'case']
+		const isScreenMaterialName = (name?: string) => {
+			const lowered = (name ?? '').toLowerCase()
+			if (!lowered) return false
+			const hasScreenKeyword = screenKeywords.some((keyword) => lowered.includes(keyword))
+			const hasBodyKeyword = bodyKeywords.some((keyword) => lowered.includes(keyword))
+			return hasScreenKeyword && !hasBodyKeyword
+		}
 
 		// Keep the monitor body dark.
 		for (const material of allMaterials) {
@@ -44,15 +53,19 @@
 		}
 
 		const screenMaterials = allMaterials.filter((material: MonitorMaterial) =>
-			(material?.name ?? '').toLowerCase().includes('screen')
+			isScreenMaterialName(material?.name)
 		)
 		const fallbackScreenMaterials =
 			screenMaterials.length > 0
 				? screenMaterials
-				: allMaterials.filter((material: MonitorMaterial) => material?.emissiveMap || material?.map)
+				: allMaterials.filter(
+						(material: MonitorMaterial) =>
+							Boolean(material?.emissiveMap) &&
+							!bodyKeywords.some((k) => (material?.name ?? '').toLowerCase().includes(k))
+					)
 
 		for (const material of fallbackScreenMaterials) {
-			setMaterialColor(material, isWhite ? '#ffffff' : '#000000', isWhite ? 1 : 0)
+			setMaterialColor(material, isWhite ? '#eaf2ff' : '#000000', isWhite ? 1.35 : 0)
 		}
 	}
 
