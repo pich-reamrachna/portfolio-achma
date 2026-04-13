@@ -31,8 +31,8 @@
 	castShadow
 	shadow-mapSize-width={2048}
 	shadow-mapSize-height={2048}
-	shadow-bias={0.00008}
-	shadow-normalBias={0.04}
+	shadow-bias={-0.00004}
+	shadow-normalBias={0.016}
 	shadow-camera-left={-2.6}
 	shadow-camera-right={2.6}
 	shadow-camera-top={2.1}
