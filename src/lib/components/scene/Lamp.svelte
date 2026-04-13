@@ -20,7 +20,9 @@
 	decay={2}
 	color="#ffd8a8"
 	castShadow
-	shadow-mapSize-width={1024}
-	shadow-mapSize-height={1024}
-	shadow-bias={-0.00008}
+	shadow-mapSize-width={2048}
+	shadow-mapSize-height={2048}
+	shadow-bias={0.00015}
+	shadow-normalBias={0.03}
+	shadow-radius={5}
 />
