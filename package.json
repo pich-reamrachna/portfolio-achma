@@ -38,6 +38,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^2.0.4",
 		"@eslint/js": "^10.0.1",
+		"@gltf-transform/cli": "^4.3.0",
 		"@playwright/test": "^1.59.1",
 		"@sveltejs/adapter-vercel": "^6.3.3",
 		"@sveltejs/kit": "^2.57.0",
@@ -51,6 +52,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.17.0",
 		"globals": "^17.4.0",
+		"obj2gltf": "^3.2.0",
 		"playwright": "^1.59.1",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.1",

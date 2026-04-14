@@ -7,6 +7,7 @@
 	import Lamp from './Lamp.svelte'
 	import Phone from './Phone.svelte'
 	import Headphone from './Headphone.svelte'
+	import PinkWall from './PinkWall.svelte'
 
 	interactivity()
 	let isMonitorOn = $state(false)
@@ -59,6 +60,7 @@
 {/if}
 
 <Desk />
+<PinkWall />
 <Computer onSelect={handleMonitorClick} onPowerChange={handleMonitorPowerChange} />
 <Keyboard />
 <Lamp />
