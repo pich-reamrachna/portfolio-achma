@@ -9,6 +9,9 @@
 		emissiveIntensity?: number
 		emissiveMap?: unknown
 		map?: unknown
+		metalness?: number
+		roughness?: number
+		envMapIntensity?: number
 		needsUpdate?: boolean
 	}
 
@@ -34,6 +37,26 @@
 		material.needsUpdate = true
 	}
 
+	const tuneMaterial = (material: MonitorMaterial, isScreen: boolean) => {
+		if (!material) return
+		if (typeof material.metalness === 'number') {
+			material.metalness = isScreen
+				? Math.max(material.metalness, 0.1)
+				: Math.max(material.metalness, 0.5)
+		}
+		if (typeof material.roughness === 'number') {
+			material.roughness = isScreen
+				? Math.min(material.roughness, 0.35)
+				: Math.min(material.roughness, 0.28)
+		}
+		if (typeof material.envMapIntensity === 'number') {
+			material.envMapIntensity = isScreen
+				? Math.max(material.envMapIntensity, 0.9)
+				: Math.max(material.envMapIntensity, 1.25)
+		}
+		material.needsUpdate = true
+	}
+
 	const applyColor = () => {
 		if (!materials) return
 		const allMaterials = Object.values(materials)
@@ -49,7 +72,8 @@
 
 		// Keep the monitor body dark.
 		for (const material of allMaterials) {
-			setMaterialColor(material, '#000000', 0)
+			setMaterialColor(material, '#111111', 0)
+			tuneMaterial(material, false)
 		}
 
 		const screenMaterials = allMaterials.filter((material: MonitorMaterial) =>
@@ -66,6 +90,7 @@
 
 		for (const material of fallbackScreenMaterials) {
 			setMaterialColor(material, isWhite ? '#eaf2ff' : '#000000', isWhite ? 1.35 : 0)
+			tuneMaterial(material, true)
 		}
 	}
 

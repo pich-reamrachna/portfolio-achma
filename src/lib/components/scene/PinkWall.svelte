@@ -45,9 +45,9 @@
 					objectName.includes('led')
 
 				if (isLightPanel) {
-					material.color?.set('#fff6e8')
-					material.emissive?.set('#ffe6c6')
-					if (typeof material.emissiveIntensity === 'number') material.emissiveIntensity = 7
+					material.color?.set('#f4c7dc')
+					material.emissive?.set('#e665a0')
+					if (typeof material.emissiveIntensity === 'number') material.emissiveIntensity = 4.8
 				} else {
 					material.color?.set('#2a2a2a')
 					material.emissive?.set('#111111')
@@ -93,43 +93,59 @@
 <!-- Local strip lights (more reliable than spot rotation for this model) -->
 <T.PointLight
 	position={[-2.78, 0.55, -2.99]}
-	intensity={0.95}
+	intensity={0.62}
 	distance={1.55}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
 />
 <T.PointLight
 	position={[-0.88, 1.92, -2.99]}
-	intensity={0.95}
+	intensity={0.62}
 	distance={1.55}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
 />
 <T.PointLight
 	position={[1.22, 0.55, -2.99]}
-	intensity={0.95}
+	intensity={0.62}
 	distance={1.55}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
 />
 <T.PointLight
 	position={[3.12, 1.92, -2.99]}
-	intensity={0.95}
-	distance={1.55}
+	intensity={0.42}
+	distance={4.2}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
 />
 <T.PointLight
 	position={[4.28, 0.55, -3.05]}
-	intensity={0.8}
+	intensity={0.52}
 	distance={1.45}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
 />
 <T.PointLight
 	position={[4.28, 1.92, -1.15]}
-	intensity={0.8}
+	intensity={0.52}
 	distance={1.45}
 	decay={2}
-	color="#ffe6c8"
+	color="#e58ab5"
+/>
+
+<!-- Subtle pink spill so nearby objects catch wall-light tint -->
+<T.PointLight
+	position={[-2.1, 0.75, -3.05]}
+	intensity={0.08}
+	distance={2.15}
+	decay={2}
+	color="#cf6d9b"
+/>
+<T.PointLight
+	position={[1.9, 0.75, -3.05]}
+	intensity={0.08}
+	distance={2.15}
+	decay={2}
+	color="#cf6d9b"
 />

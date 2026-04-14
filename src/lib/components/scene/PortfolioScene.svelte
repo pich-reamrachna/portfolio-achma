@@ -61,15 +61,34 @@
 
 <Desk />
 <PinkWall />
+<!-- Pink rim lights behind monitor edges (left/right) -->
+<T.PointLight
+	position={[-0.66, 0.72, -0.16]}
+	intensity={0.32}
+	distance={0.45}
+	decay={2}
+	color="#d879a8"
+/>
+<T.PointLight
+	position={[0.66, 0.72, -0.16]}
+	intensity={0.32}
+	distance={0.45}
+	decay={2}
+	color="#d879a8"
+/>
 <Computer onSelect={handleMonitorClick} onPowerChange={handleMonitorPowerChange} />
 <Keyboard />
 <Lamp />
 <Phone />
 <Headphone />
 
-<!-- <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-	<T.PlaneGeometry args={[20, 20]} />
-	<T.MeshStandardMaterial color="lightgray" />
-</T.Mesh> -->
-
-<T.Color attach="background" args={['#1a1a1a']} />
+<T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.02, 0]} receiveShadow>
+	<T.PlaneGeometry args={[24, 24]} />
+	<T.MeshPhysicalMaterial
+		color="#2f2f2f"
+		roughness={0.08}
+		metalness={0.2}
+		clearcoat={1}
+		clearcoatRoughness={0.1}
+	/>
+</T.Mesh>
