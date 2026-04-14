@@ -14,12 +14,14 @@
 		onMonitorOpen,
 		isMonitorOn = false,
 		onPhoneSelect,
-		onPhoneAnchorChange
+		onPhoneAnchorChange,
+		isPhonePopupOpen = false
 	}: {
 		onMonitorOpen?: () => void
 		isMonitorOn?: boolean
 		onPhoneSelect?: () => void
 		onPhoneAnchorChange?: (anchor: { x: number; y: number }) => void
+		isPhonePopupOpen?: boolean
 	} = $props()
 
 	interactivity()
@@ -107,7 +109,7 @@
 />
 <Keyboard />
 <Lamp />
-<Phone onSelect={onPhoneSelect} />
+<Phone onSelect={onPhoneSelect} isActive={isPhonePopupOpen} />
 <Headphone />
 
 <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.02, 0]} receiveShadow>

@@ -15,10 +15,9 @@
 	type TraversedObject = { isMesh?: boolean; castShadow?: boolean; receiveShadow?: boolean }
 	type TraversableScene = { traverse: (visitor: (object: TraversedObject) => void) => void }
 
-	let { onSelect }: { onSelect?: () => void } = $props()
+	let { onSelect, isActive = false }: { onSelect?: () => void; isActive?: boolean } = $props()
 	let materials = $state<Record<string, PhoneMaterial> | null>(null)
 	let scene = $state<TraversableScene | null>(null)
-	let isPhoneOn = $state(false)
 	const { invalidate } = useThrelte()
 
 	// These two materials are the iPhone front display/glass in this model export.
@@ -33,12 +32,12 @@
 			const isScreen = screenMaterialNames.has(material.name ?? '')
 			if (!isScreen) continue
 
-			if (material.color) material.color.set(isPhoneOn ? '#f7f9ff' : '#0a0c12')
-			if (material.emissive) material.emissive.set(isPhoneOn ? '#9dbbff' : '#000000')
+			if (material.color) material.color.set(isActive ? '#f7f9ff' : '#0a0c12')
+			if (material.emissive) material.emissive.set(isActive ? '#9dbbff' : '#000000')
 			if (typeof material.emissiveIntensity === 'number')
-				material.emissiveIntensity = isPhoneOn ? 0.35 : 0
-			if (typeof material.roughness === 'number') material.roughness = isPhoneOn ? 0.18 : 0.28
-			if (typeof material.metalness === 'number') material.metalness = isPhoneOn ? 0.02 : 0.04
+				material.emissiveIntensity = isActive ? 0.35 : 0
+			if (typeof material.roughness === 'number') material.roughness = isActive ? 0.18 : 0.28
+			if (typeof material.metalness === 'number') material.metalness = isActive ? 0.02 : 0.04
 			material.needsUpdate = true
 		}
 
@@ -65,7 +64,6 @@
 	rotation={[-Math.PI / 2, 0, -0]}
 	onclick={(e: PointerEvent) => {
 		e.stopPropagation()
-		isPhoneOn = !isPhoneOn
 		onSelect?.()
 	}}
 	onpointerenter={() => {

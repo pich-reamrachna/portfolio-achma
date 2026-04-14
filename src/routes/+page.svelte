@@ -9,6 +9,8 @@
 	let monitorOn = $state(false)
 	let contactPopupOpen = $state(false)
 	let phoneAnchor = $state({ x: 0, y: 0 })
+	let suppressPhoneToggleUntil = 0
+	let ignoreOutsideCloseUntil = 0
 
 	function openMonitorExperience() {
 		monitorOn = true
@@ -21,12 +23,40 @@
 	}
 
 	function toggleContactPopup() {
+		const now = performance.now()
+		if (now < suppressPhoneToggleUntil) return
+
 		contactPopupOpen = !contactPopupOpen
+		if (contactPopupOpen) {
+			// Ignore the same click cycle that opened the popup.
+			ignoreOutsideCloseUntil = now + 120
+		}
 	}
 
 	function handlePhoneAnchorChange(anchor: { x: number; y: number }) {
 		phoneAnchor = anchor
 	}
+
+	$effect(() => {
+		if (!contactPopupOpen) return
+
+		const handleWindowClick = (event: MouseEvent) => {
+			const now = performance.now()
+			if (now < ignoreOutsideCloseUntil) return
+
+			const target = event.target
+			if (target instanceof Element && target.closest('.phone-holo-card')) return
+			contactPopupOpen = false
+			// If this close came from the same click that also hits the phone,
+			// prevent immediate reopen.
+			suppressPhoneToggleUntil = now + 120
+		}
+
+		window.addEventListener('click', handleWindowClick)
+		return () => {
+			window.removeEventListener('click', handleWindowClick)
+		}
+	})
 </script>
 
 <div class="page">
@@ -36,6 +66,7 @@
 			isMonitorOn={monitorOn}
 			onPhoneSelect={toggleContactPopup}
 			onPhoneAnchorChange={handlePhoneAnchorChange}
+			isPhonePopupOpen={contactPopupOpen}
 		/>
 	</Canvas>
 
