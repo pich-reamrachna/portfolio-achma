@@ -9,15 +9,15 @@
 	import Headphone from './Headphone.svelte'
 	import PinkWall from './PinkWall.svelte'
 
+	let {
+		onMonitorOpen,
+		isMonitorOn = false
+	}: { onMonitorOpen?: () => void; isMonitorOn?: boolean } = $props()
+
 	interactivity()
-	let isMonitorOn = $state(false)
 
 	function handleMonitorClick() {
-		console.log('Monitor clicked')
-	}
-
-	function handleMonitorPowerChange(isOn: boolean) {
-		isMonitorOn = isOn
+		onMonitorOpen?.()
 	}
 </script>
 
@@ -76,7 +76,11 @@
 	decay={2}
 	color="#d879a8"
 />
-<Computer onSelect={handleMonitorClick} onPowerChange={handleMonitorPowerChange} />
+<Computer
+	onSelect={handleMonitorClick}
+	onPowerChange={() => onMonitorOpen?.()}
+	isPowered={isMonitorOn}
+/>
 <Keyboard />
 <Lamp />
 <Phone />

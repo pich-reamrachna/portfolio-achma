@@ -17,10 +17,15 @@
 
 	let {
 		onSelect,
-		onPowerChange
-	}: { onSelect?: () => void; onPowerChange?: (isOn: boolean) => void } = $props()
+		onPowerChange,
+		isPowered = false
+	}: {
+		onSelect?: () => void
+		onPowerChange?: (isOn: boolean) => void
+		isPowered?: boolean
+	} = $props()
 	let materials = $state<Record<string, MonitorMaterial> | null>(null)
-	let isWhite = $state(false)
+	let isWhite = $state(isPowered)
 	const { invalidate } = useThrelte()
 
 	const setMaterialColor = (
@@ -95,6 +100,10 @@
 	}
 
 	$effect(() => {
+		isWhite = isPowered
+	})
+
+	$effect(() => {
 		applyColor()
 		invalidate()
 	})
@@ -107,8 +116,7 @@
 	position={[0, 0.4, 0]}
 	onclick={(e: PointerEvent) => {
 		e.stopPropagation()
-		isWhite = !isWhite
-		onPowerChange?.(isWhite)
+		onPowerChange?.(true)
 		onSelect?.()
 	}}
 	onpointerenter={() => {
