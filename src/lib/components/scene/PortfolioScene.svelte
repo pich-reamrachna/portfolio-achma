@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { T } from '@threlte/core'
+	import { T, useTask, useThrelte } from '@threlte/core'
 	import { interactivity } from '@threlte/extras'
+	import { Vector3 } from 'three'
 	import Desk from './Desk.svelte'
 	import Computer from './Computer.svelte'
 	import Keyboard from './Keyboard.svelte'
@@ -11,14 +12,37 @@
 
 	let {
 		onMonitorOpen,
-		isMonitorOn = false
-	}: { onMonitorOpen?: () => void; isMonitorOn?: boolean } = $props()
+		isMonitorOn = false,
+		onPhoneSelect,
+		onPhoneAnchorChange
+	}: {
+		onMonitorOpen?: () => void
+		isMonitorOn?: boolean
+		onPhoneSelect?: () => void
+		onPhoneAnchorChange?: (anchor: { x: number; y: number }) => void
+	} = $props()
 
 	interactivity()
+	const { camera, size } = useThrelte()
+	// Tuned anchor so contact popup projects above the phone on the desk.
+	const phoneWorldPosition = new Vector3(0.64, 0.24, -0.06)
+	const projected = new Vector3()
 
 	function handleMonitorClick() {
 		onMonitorOpen?.()
 	}
+
+	useTask(() => {
+		const activeCamera = camera.current
+		const viewportSize = size.current
+		if (!activeCamera || !viewportSize) return
+
+		projected.copy(phoneWorldPosition).project(activeCamera)
+		const x = (projected.x * 0.5 + 0.5) * viewportSize.width
+		const y = (-projected.y * 0.5 + 0.5) * viewportSize.height
+
+		onPhoneAnchorChange?.({ x, y })
+	})
 </script>
 
 <T.PerspectiveCamera makeDefault position={[0, 1, 2]} rotation={[-0.1, 0, 0]} fov={50} />
@@ -83,7 +107,7 @@
 />
 <Keyboard />
 <Lamp />
-<Phone />
+<Phone onSelect={onPhoneSelect} />
 <Headphone />
 
 <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.02, 0]} receiveShadow>

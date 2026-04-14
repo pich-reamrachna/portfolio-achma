@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { aboutMeText, projectFiles, type ProjectFile } from '$lib/data/projects'
+	import { aboutMeText, projectFiles, type ProjectFile } from '../../data/projects.js'
 	import HologramTopbar from './HologramTopbar.svelte'
 	import HologramTaskbar from './HologramTaskbar.svelte'
 	import './hologram.css'

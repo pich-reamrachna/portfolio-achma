@@ -15,6 +15,7 @@
 	type TraversedObject = { isMesh?: boolean; castShadow?: boolean; receiveShadow?: boolean }
 	type TraversableScene = { traverse: (visitor: (object: TraversedObject) => void) => void }
 
+	let { onSelect }: { onSelect?: () => void } = $props()
 	let materials = $state<Record<string, PhoneMaterial> | null>(null)
 	let scene = $state<TraversableScene | null>(null)
 	let isPhoneOn = $state(false)
@@ -65,6 +66,7 @@
 	onclick={(e: PointerEvent) => {
 		e.stopPropagation()
 		isPhoneOn = !isPhoneOn
+		onSelect?.()
 	}}
 	onpointerenter={() => {
 		document.body.style.cursor = 'pointer'
