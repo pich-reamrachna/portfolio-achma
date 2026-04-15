@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Canvas } from '@threlte/core'
 	import PortfolioScene from '$lib/components/scene/PortfolioScene.svelte'
+	import AssetProgressReporter from '$lib/components/scene/AssetProgressReporter.svelte'
 	import HologramDesktop from '$lib/components/hologram/HologramDesktop.svelte'
 	import PhoneContactPopup from '$lib/components/hologram/PhoneContactPopup.svelte'
 	import HeadphoneMusicPopup from '$lib/components/hologram/HeadphoneMusicPopup.svelte'
@@ -23,6 +24,9 @@
 	const highPerf = detectHighPerf()
 
 	let sceneVisible = $state(false)
+	let assetProgress = $state(0)
+	let assetsDone = $state(false)
+	let assetsActive = $state(false)
 
 	let hologramOpen = $state(false)
 	let monitorOn = $state(false)
@@ -94,6 +98,14 @@
 		headphoneAnchor = anchor
 	}
 
+	function handleAssetProgress(state: { progress: number; active: boolean; done: boolean }) {
+		assetProgress = state.progress
+		assetsActive = state.active
+		if (state.done || state.progress >= 1) {
+			assetsDone = true
+		}
+	}
+
 	$effect(() => {
 		if (!contactPopupOpen) return
 
@@ -147,6 +159,7 @@
 	<!-- Canvas renders behind the loading screen so assets load immediately -->
 	<div class="scene-wrap" class:visible={sceneVisible}>
 		<Canvas shadows={highPerf} dpr={highPerf ? 2 : 1}>
+			<AssetProgressReporter onChange={handleAssetProgress} />
 			<PortfolioScene
 				onMonitorOpen={openMonitorExperience}
 				isMonitorOn={monitorOn}
@@ -168,5 +181,10 @@
 		onPlaybackChange={(playing) => (headphoneMusicPlaying = playing)}
 	/>
 
-	<LoadingScreen onDone={() => (sceneVisible = true)} />
+	<LoadingScreen
+		progress={assetProgress}
+		done={assetsDone}
+		active={assetsActive}
+		onDone={() => (sceneVisible = true)}
+	/>
 </div>

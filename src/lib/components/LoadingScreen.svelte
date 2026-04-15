@@ -1,13 +1,20 @@
 <script lang="ts">
+	import { browser } from '$app/environment'
 	import { onDestroy, onMount } from 'svelte'
 
-	let { onDone }: { onDone?: () => void } = $props()
+	type LoadingScreenProps = {
+		onDone?: () => void
+		progress?: number
+		done?: boolean
+		active?: boolean
+	}
+
+	let { onDone, progress = 0, done = false, active = false }: LoadingScreenProps = $props()
 
 	// Displayed percentage animates toward actual progress.
 	let displayPct = $state(0)
 	let statusIdx = $state(0)
 	let phase = $state<'loading' | 'ready' | 'exiting' | 'done'>('loading')
-	let startedAt = 0
 
 	const STATUSES = [
 		'INITIALIZING RENDER CONTEXT',
@@ -18,48 +25,63 @@
 		'COMPILING SCENE GRAPH'
 	]
 
-	let progressTimer: ReturnType<typeof setInterval> | null = null
 	let statusTimer: ReturnType<typeof setInterval> | null = null
-	let finishTimer: ReturnType<typeof setTimeout> | null = null
 	let exitTimer: ReturnType<typeof setTimeout> | null = null
 	let doneTimer: ReturnType<typeof setTimeout> | null = null
+	let minHoldTimer: ReturnType<typeof setTimeout> | null = null
+	let minHoldMet = $state(false)
+	let animFrame = 0
 
 	onMount(() => {
-		startedAt = Date.now()
+		minHoldTimer = setTimeout(() => {
+			minHoldMet = true
+		}, 500)
 
 		statusTimer = setInterval(() => {
 			if (phase === 'loading') {
 				statusIdx = (statusIdx + 1) % STATUSES.length
 			}
 		}, 700)
+	})
 
-		progressTimer = setInterval(() => {
-			if (phase !== 'loading') return
-			const elapsed = Date.now() - startedAt
-			const cap = elapsed > 1400 ? 96 : 92
-			displayPct = Math.min(cap, displayPct + Math.max(1, (cap - displayPct) * 0.08))
-		}, 80)
+	function animateTowardTarget(target: number) {
+		const clampedTarget = Math.max(0, Math.min(100, target))
+		displayPct += (clampedTarget - displayPct) * 0.18
+		if (Math.abs(clampedTarget - displayPct) <= 0.3) {
+			displayPct = clampedTarget
+			return
+		}
+		animFrame = requestAnimationFrame(() => animateTowardTarget(clampedTarget))
+	}
 
-		// SSR-safe fallback loader timing: quick enough to feel snappy, long enough to avoid flash.
-		finishTimer = setTimeout(() => {
-			phase = 'ready'
-			displayPct = 100
-			exitTimer = setTimeout(() => {
-				phase = 'exiting'
-				doneTimer = setTimeout(() => {
-					phase = 'done'
-					onDone?.()
-				}, 500)
-			}, 280)
-		}, 1400)
+	$effect(() => {
+		if (!browser) return
+		if (phase !== 'loading') return
+		const target = done ? 100 : Math.min(99, Math.round((progress || 0) * 100))
+		cancelAnimationFrame(animFrame)
+		animFrame = requestAnimationFrame(() => animateTowardTarget(target))
+	})
+
+	$effect(() => {
+		if (phase !== 'loading') return
+		if (!done || !minHoldMet) return
+		phase = 'ready'
+		displayPct = 100
+		exitTimer = setTimeout(() => {
+			phase = 'exiting'
+			doneTimer = setTimeout(() => {
+				phase = 'done'
+				onDone?.()
+			}, 500)
+		}, 280)
 	})
 
 	onDestroy(() => {
-		if (progressTimer) clearInterval(progressTimer)
 		if (statusTimer) clearInterval(statusTimer)
-		if (finishTimer) clearTimeout(finishTimer)
+		if (minHoldTimer) clearTimeout(minHoldTimer)
 		if (exitTimer) clearTimeout(exitTimer)
 		if (doneTimer) clearTimeout(doneTimer)
+		if (browser) cancelAnimationFrame(animFrame)
 	})
 </script>
 
@@ -92,7 +114,7 @@
 			<div class="status-block">
 				<div class="status-row">
 					<span class="status-text" class:ready={phase === 'ready'}>
-						{phase === 'ready' ? 'READY' : STATUSES[statusIdx]}
+						{phase === 'ready' ? 'READY' : active ? STATUSES[statusIdx] : 'PREPARING ASSETS'}
 					</span>
 					<span class="pct">{Math.floor(displayPct)}<span class="pct-symbol">%</span></span>
 				</div>
@@ -111,6 +133,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 9999;
+		pointer-events: none;
 		background: #06080f;
 		display: flex;
 		align-items: center;
