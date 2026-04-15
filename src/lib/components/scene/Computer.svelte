@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { useThrelte } from '@threlte/core'
 	import { GLTF } from '@threlte/extras'
+	import { outlinedObjects } from '$lib/stores/outline'
+	import type { Object3D } from 'three'
 
 	type MonitorMaterial = {
 		name?: string
@@ -25,7 +27,9 @@
 		isPowered?: boolean
 	} = $props()
 	let materials = $state<Record<string, MonitorMaterial> | null>(null)
+	let scene = $state<{ traverse: (cb: (o: unknown) => void) => void } | null>(null)
 	let isWhite = $state(isPowered)
+	let isHovered = $state(false)
 	const { invalidate } = useThrelte()
 
 	const setMaterialColor = (
@@ -107,11 +111,21 @@
 		applyColor()
 		invalidate()
 	})
+
+	$effect(() => {
+		const obj = scene as unknown as Object3D | null
+		if (!obj || !isHovered) return
+		outlinedObjects.update((list) => [...list, obj])
+		return () => {
+			outlinedObjects.update((list) => list.filter((o) => o !== obj))
+		}
+	})
 </script>
 
 <GLTF
 	url="/models/monitor.glb"
 	bind:materials
+	bind:scene
 	scale={1.3}
 	position={[0, 0.4, 0]}
 	onclick={(e: PointerEvent) => {
@@ -120,9 +134,11 @@
 		onSelect?.()
 	}}
 	onpointerenter={() => {
+		isHovered = true
 		document.body.style.cursor = 'pointer'
 	}}
 	onpointerleave={() => {
+		isHovered = false
 		document.body.style.cursor = 'default'
 	}}
 />

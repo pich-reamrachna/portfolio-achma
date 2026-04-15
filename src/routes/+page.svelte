@@ -5,7 +5,24 @@
 	import PhoneContactPopup from '$lib/components/hologram/PhoneContactPopup.svelte'
 	import HeadphoneMusicPopup from '$lib/components/hologram/HeadphoneMusicPopup.svelte'
 	import HeadphoneMusicNotes from '$lib/components/hologram/HeadphoneMusicNotes.svelte'
+	import LoadingScreen from '$lib/components/LoadingScreen.svelte'
+	import { createSound } from '$lib/sound'
 	import './page.css'
+
+	// ── Performance detection ──────────────────────────────────────
+	// Runs synchronously in browser before first render so Canvas gets
+	// the right quality settings immediately without remounting.
+	function detectHighPerf(): boolean {
+		if (typeof window === 'undefined') return true
+		const mem = (navigator as unknown as { deviceMemory?: number }).deviceMemory
+		if (mem !== undefined && mem <= 2) return false
+		const cores = navigator.hardwareConcurrency
+		if (cores !== undefined && cores <= 2) return false
+		return true
+	}
+	const highPerf = detectHighPerf()
+
+	let sceneVisible = $state(false)
 
 	let hologramOpen = $state(false)
 	let monitorOn = $state(false)
@@ -18,17 +35,25 @@
 	let ignoreOutsideCloseUntil = 0
 	let suppressHeadphoneToggleUntil = 0
 	let ignoreHeadphoneOutsideCloseUntil = 0
-	let phoneClickSound: HTMLAudioElement | null = null
-	let monitorTapSound: HTMLAudioElement | null = null
-	let lastMonitorTapSoundAt = 0
+
+	let playPhoneClick = () => {}
+	let playMonitorTap = () => {}
+
+	$effect(() => {
+		const phoneClick = createSound('/sound/bubble-pop.mp3', 0.85)
+		const monitorTap = createSound('/sound/tap-light.mp3', 0.85, 120)
+		playPhoneClick = phoneClick.play
+		playMonitorTap = monitorTap.play
+		return () => {
+			phoneClick.destroy()
+			monitorTap.destroy()
+			playPhoneClick = () => {}
+			playMonitorTap = () => {}
+		}
+	})
 
 	function openMonitorExperience() {
-		const now = performance.now()
-		if (now - lastMonitorTapSoundAt > 120) {
-			playMonitorTapSound()
-			lastMonitorTapSoundAt = now
-		}
-
+		playMonitorTap()
 		monitorOn = true
 		hologramOpen = true
 	}
@@ -38,38 +63,8 @@
 		monitorOn = false
 	}
 
-	function playPhoneClickSound() {
-		if (typeof Audio === 'undefined') return
-
-		if (!phoneClickSound) {
-			phoneClickSound = new Audio('/sound/bubble-pop.mp3')
-			phoneClickSound.preload = 'auto'
-			phoneClickSound.volume = 0.85
-		}
-
-		phoneClickSound.currentTime = 0
-		void phoneClickSound.play().catch(() => {
-			// Ignore blocked autoplay/playback rejections.
-		})
-	}
-
-	function playMonitorTapSound() {
-		if (typeof Audio === 'undefined') return
-
-		if (!monitorTapSound) {
-			monitorTapSound = new Audio('/sound/tap-light.mp3')
-			monitorTapSound.preload = 'auto'
-			monitorTapSound.volume = 0.85
-		}
-
-		monitorTapSound.currentTime = 0
-		void monitorTapSound.play().catch(() => {
-			// Ignore blocked autoplay/playback rejections.
-		})
-	}
-
 	function toggleContactPopup() {
-		playPhoneClickSound()
+		playPhoneClick()
 
 		const now = performance.now()
 		if (now < suppressPhoneToggleUntil) return
@@ -140,30 +135,38 @@
 	})
 </script>
 
+<svelte:head>
+	<!-- Preload the heaviest primary models so the browser fetches them before JS parses -->
+	<link rel="preload" href="/models/desk.glb" as="fetch" crossorigin="anonymous" />
+	<link rel="preload" href="/models/monitor.glb" as="fetch" crossorigin="anonymous" />
+	<link rel="preload" href="/models/iphone.glb" as="fetch" crossorigin="anonymous" />
+	<link rel="preload" href="/models/headphone.glb" as="fetch" crossorigin="anonymous" />
+</svelte:head>
+
 <div class="page">
-	<Canvas shadows>
-		<PortfolioScene
-			onMonitorOpen={openMonitorExperience}
-			isMonitorOn={monitorOn}
-			onPhoneSelect={toggleContactPopup}
-			onPhoneAnchorChange={handlePhoneAnchorChange}
-			isPhonePopupOpen={contactPopupOpen}
-			onHeadphoneSelect={toggleMusicPopup}
-			onHeadphoneAnchorChange={handleHeadphoneAnchorChange}
-		/>
-	</Canvas>
+	<!-- Canvas renders behind the loading screen so assets load immediately -->
+	<div class="scene-wrap" class:visible={sceneVisible}>
+		<Canvas shadows={highPerf} dpr={highPerf ? 2 : 1}>
+			<PortfolioScene
+				onMonitorOpen={openMonitorExperience}
+				isMonitorOn={monitorOn}
+				onPhoneSelect={toggleContactPopup}
+				onPhoneAnchorChange={handlePhoneAnchorChange}
+				isPhonePopupOpen={contactPopupOpen}
+				onHeadphoneSelect={toggleMusicPopup}
+				onHeadphoneAnchorChange={handleHeadphoneAnchorChange}
+			/>
+		</Canvas>
+	</div>
 
 	<HologramDesktop open={hologramOpen} onClose={closeMonitorExperience} />
-	<PhoneContactPopup
-		open={contactPopupOpen}
-		anchor={phoneAnchor}
-		onClose={() => (contactPopupOpen = false)}
-	/>
+	<PhoneContactPopup open={contactPopupOpen} anchor={phoneAnchor} />
 	<HeadphoneMusicNotes open={headphoneMusicPlaying} anchor={headphoneAnchor} />
 	<HeadphoneMusicPopup
 		open={musicPopupOpen}
 		anchor={headphoneAnchor}
-		onClose={() => (musicPopupOpen = false)}
 		onPlaybackChange={(playing) => (headphoneMusicPlaying = playing)}
 	/>
+
+	<LoadingScreen onDone={() => (sceneVisible = true)} />
 </div>

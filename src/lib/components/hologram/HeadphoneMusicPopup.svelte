@@ -8,7 +8,6 @@
 	} = $props<{
 		open?: boolean
 		anchor?: { x: number; y: number }
-		onClose?: () => void
 		onPlaybackChange?: (isPlaying: boolean) => void
 	}>()
 
@@ -29,7 +28,7 @@
 		{
 			title: 'Lunar Hearts',
 			artist: 'PLAVE',
-			src: "/sound/PLAVE 'Lunar Hearts' Official Audio.mp3",
+			src: '/sound/plave-lunar-hearts.mp3',
 			artwork: '/lunarhearts.gif'
 		}
 	]
@@ -294,14 +293,4 @@
 			</div>
 		</div>
 	</section>
-
-	<div
-		class="sr-only"
-		role="progressbar"
-		aria-valuemin="0"
-		aria-valuemax="100"
-		aria-valuenow={progress}
-	>
-		{progress}
-	</div>
 </aside>

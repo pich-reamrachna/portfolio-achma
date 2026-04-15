@@ -11,8 +11,10 @@
 	import Phone from './Phone.svelte'
 	import Headphone from './Headphone.svelte'
 	import PinkWall from './PinkWall.svelte'
+	import SceneOutline from './SceneOutline.svelte'
 
 	let {
+		highPerf = true,
 		onMonitorOpen,
 		isMonitorOn = false,
 		onPhoneSelect,
@@ -21,6 +23,7 @@
 		onHeadphoneSelect,
 		onHeadphoneAnchorChange
 	}: {
+		highPerf?: boolean
 		onMonitorOpen?: () => void
 		isMonitorOn?: boolean
 		onPhoneSelect?: () => void
@@ -36,6 +39,15 @@
 	const phoneWorldPosition = new Vector3(0.64, 0.24, -0.06)
 	const headphoneWorldPosition = new Vector3(-0.6, 0.47, -0.05)
 	const projected = new Vector3()
+
+	// Defer decorative props so the browser prioritises primary models first.
+	let showSecondary = $state(false)
+	$effect(() => {
+		const id = setTimeout(() => {
+			showSecondary = true
+		}, 150)
+		return () => clearTimeout(id)
+	})
 
 	function handleMonitorClick() {
 		onMonitorOpen?.()
@@ -66,9 +78,9 @@
 	position={[3, 5, 3]}
 	intensity={1.45}
 	color="#cfe8ff"
-	castShadow
-	shadow-mapSize-width={2048}
-	shadow-mapSize-height={2048}
+	castShadow={highPerf}
+	shadow-mapSize-width={highPerf ? 2048 : 512}
+	shadow-mapSize-height={highPerf ? 2048 : 512}
 	shadow-bias={-0.00004}
 	shadow-normalBias={0.016}
 	shadow-camera-left={-2.6}
@@ -96,6 +108,7 @@
 	/>
 {/if}
 
+{#if highPerf}<SceneOutline />{/if}
 <Desk />
 <PinkWall />
 <!-- Pink rim lights behind monitor edges (left/right) -->
@@ -118,10 +131,12 @@
 	onPowerChange={() => onMonitorOpen?.()}
 	isPowered={isMonitorOn}
 />
-<Mousepad />
-<Keyboard />
-<Mouse />
-<Lamp />
+{#if showSecondary}
+	<Mousepad />
+	<Keyboard />
+	<Mouse />
+	<Lamp />
+{/if}
 <Phone onSelect={onPhoneSelect} isActive={isPhonePopupOpen} />
 <Headphone onSelect={onHeadphoneSelect} />
 

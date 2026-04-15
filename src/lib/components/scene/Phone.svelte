@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { useThrelte } from '@threlte/core'
 	import { GLTF } from '@threlte/extras'
+	import { outlinedObjects } from '$lib/stores/outline'
+	import type { Object3D } from 'three'
 
 	type ColorSetter = { set: (value: string) => void }
 	type PhoneMaterial = {
@@ -18,7 +20,17 @@
 	let { onSelect, isActive = false }: { onSelect?: () => void; isActive?: boolean } = $props()
 	let materials = $state<Record<string, PhoneMaterial> | null>(null)
 	let scene = $state<TraversableScene | null>(null)
+	let isHovered = $state(false)
 	const { invalidate } = useThrelte()
+
+	$effect(() => {
+		const obj = scene as unknown as Object3D | null
+		if (!obj || !isHovered) return
+		outlinedObjects.update((list) => [...list, obj])
+		return () => {
+			outlinedObjects.update((list) => list.filter((o) => o !== obj))
+		}
+	})
 
 	// These two materials are the iPhone front display/glass in this model export.
 	const screenMaterialNames = new Set(['4130c6244c49c5d5712e', 'a18b462c494e4fd29b4b'])
@@ -67,9 +79,11 @@
 		onSelect?.()
 	}}
 	onpointerenter={() => {
+		isHovered = true
 		document.body.style.cursor = 'pointer'
 	}}
 	onpointerleave={() => {
+		isHovered = false
 		document.body.style.cursor = 'default'
 	}}
 />

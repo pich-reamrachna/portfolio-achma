@@ -1,13 +1,25 @@
 <script lang="ts">
 	import { useThrelte } from '@threlte/core'
 	import { GLTF } from '@threlte/extras'
+	import { outlinedObjects } from '$lib/stores/outline'
+	import type { Object3D } from 'three'
 
 	type TraversedObject = { isMesh?: boolean; castShadow?: boolean; receiveShadow?: boolean }
 	type TraversableScene = { traverse: (visitor: (object: TraversedObject) => void) => void }
 
 	let { onSelect }: { onSelect?: () => void } = $props()
 	let scene = $state<TraversableScene | null>(null)
+	let isHovered = $state(false)
 	const { invalidate } = useThrelte()
+
+	$effect(() => {
+		const obj = scene as unknown as Object3D | null
+		if (!obj || !isHovered) return
+		outlinedObjects.update((list) => [...list, obj])
+		return () => {
+			outlinedObjects.update((list) => list.filter((o) => o !== obj))
+		}
+	})
 
 	$effect(() => {
 		if (!scene) return
@@ -31,9 +43,11 @@
 		onSelect?.()
 	}}
 	onpointerenter={() => {
+		isHovered = true
 		document.body.style.cursor = 'pointer'
 	}}
 	onpointerleave={() => {
+		isHovered = false
 		document.body.style.cursor = 'default'
 	}}
 />

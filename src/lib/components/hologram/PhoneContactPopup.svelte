@@ -1,5 +1,6 @@
 <script lang="ts">
 	import './phone-contact-popup.css'
+	import { createSound } from '$lib/sound'
 
 	function openExternal(url: string) {
 		window.open(url, '_blank', 'noopener,noreferrer')
@@ -9,31 +10,20 @@
 		window.location.href = `mailto:${address}`
 	}
 
-	let hoverSound: HTMLAudioElement | null = null
-	let lastHoverSoundAt = 0
+	let playHoverSound = $state(() => {})
 
-	function playHoverSound() {
-		if (typeof Audio === 'undefined') return
-		const now = performance.now()
-		if (now - lastHoverSoundAt < 80) return
-		lastHoverSoundAt = now
-
-		if (!hoverSound) {
-			hoverSound = new Audio('/sound/spacebar.mp3')
-			hoverSound.preload = 'auto'
-			hoverSound.volume = 0.55
+	$effect(() => {
+		const hover = createSound('/sound/spacebar.mp3', 0.55, 80)
+		playHoverSound = hover.play
+		return () => {
+			hover.destroy()
+			playHoverSound = () => {}
 		}
-
-		hoverSound.currentTime = 0
-		void hoverSound.play().catch(() => {
-			// Ignore blocked autoplay/playback rejections.
-		})
-	}
+	})
 
 	let { open = false, anchor = { x: 0, y: 0 } } = $props<{
 		open?: boolean
 		anchor?: { x: number; y: number }
-		onClose?: () => void
 	}>()
 </script>
 
@@ -45,7 +35,6 @@
 				aria-label="LinkedIn"
 				class="icon-btn"
 				onpointerenter={playHoverSound}
-				onfocus={playHoverSound}
 				onclick={() => openExternal('https://www.linkedin.com/in/ream-rachna-pich/')}
 			>
 				<svg class="icon-glyph" viewBox="0 0 16 16" aria-hidden="true">
@@ -67,7 +56,6 @@
 				aria-label="GitHub"
 				class="icon-btn"
 				onpointerenter={playHoverSound}
-				onfocus={playHoverSound}
 				onclick={() => openExternal('https://github.com/pich-reamrachna')}
 			>
 				<svg class="icon-glyph" viewBox="0 0 16 16" aria-hidden="true">
@@ -90,7 +78,6 @@
 				aria-label="Email"
 				class="icon-btn"
 				onpointerenter={playHoverSound}
-				onfocus={playHoverSound}
 				onclick={() => openEmail('pichreamr@gmail.com')}
 			>
 				<svg class="icon-glyph" viewBox="0 0 16 16" aria-hidden="true">
