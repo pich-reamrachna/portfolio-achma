@@ -10,6 +10,7 @@
 
 	let viewMode = $state<ViewMode>('desktop')
 	let selectedProject = $state<ProjectFile>(projectFiles[0])
+	let desktopClickSound: HTMLAudioElement | null = null
 
 	$effect(() => {
 		if (open) {
@@ -17,15 +18,33 @@
 		}
 	})
 
+	function playDesktopClickSound() {
+		if (typeof Audio === 'undefined') return
+
+		if (!desktopClickSound) {
+			desktopClickSound = new Audio('/sound/click.mp3')
+			desktopClickSound.preload = 'auto'
+			desktopClickSound.volume = 0.9
+		}
+
+		desktopClickSound.currentTime = 0
+		void desktopClickSound.play().catch(() => {
+			// Ignore blocked autoplay/playback rejections.
+		})
+	}
+
 	function openAboutFile() {
+		playDesktopClickSound()
 		viewMode = 'about'
 	}
 
 	function openProjectsFolder() {
+		playDesktopClickSound()
 		viewMode = 'projects'
 	}
 
 	function openProjectFile(project: ProjectFile) {
+		playDesktopClickSound()
 		selectedProject = project
 		viewMode = 'project-detail'
 	}

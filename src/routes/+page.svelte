@@ -11,8 +11,17 @@
 	let phoneAnchor = $state({ x: 0, y: 0 })
 	let suppressPhoneToggleUntil = 0
 	let ignoreOutsideCloseUntil = 0
+	let phoneClickSound: HTMLAudioElement | null = null
+	let monitorTapSound: HTMLAudioElement | null = null
+	let lastMonitorTapSoundAt = 0
 
 	function openMonitorExperience() {
+		const now = performance.now()
+		if (now - lastMonitorTapSoundAt > 120) {
+			playMonitorTapSound()
+			lastMonitorTapSoundAt = now
+		}
+
 		monitorOn = true
 		hologramOpen = true
 	}
@@ -22,7 +31,39 @@
 		monitorOn = false
 	}
 
+	function playPhoneClickSound() {
+		if (typeof Audio === 'undefined') return
+
+		if (!phoneClickSound) {
+			phoneClickSound = new Audio('/sound/bubble-pop.mp3')
+			phoneClickSound.preload = 'auto'
+			phoneClickSound.volume = 0.85
+		}
+
+		phoneClickSound.currentTime = 0
+		void phoneClickSound.play().catch(() => {
+			// Ignore blocked autoplay/playback rejections.
+		})
+	}
+
+	function playMonitorTapSound() {
+		if (typeof Audio === 'undefined') return
+
+		if (!monitorTapSound) {
+			monitorTapSound = new Audio('/sound/tap-light.mp3')
+			monitorTapSound.preload = 'auto'
+			monitorTapSound.volume = 0.85
+		}
+
+		monitorTapSound.currentTime = 0
+		void monitorTapSound.play().catch(() => {
+			// Ignore blocked autoplay/playback rejections.
+		})
+	}
+
 	function toggleContactPopup() {
+		playPhoneClickSound()
+
 		const now = performance.now()
 		if (now < suppressPhoneToggleUntil) return
 
