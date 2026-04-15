@@ -17,19 +17,24 @@
 		isMonitorOn = false,
 		onPhoneSelect,
 		onPhoneAnchorChange,
-		isPhonePopupOpen = false
+		isPhonePopupOpen = false,
+		onHeadphoneSelect,
+		onHeadphoneAnchorChange
 	}: {
 		onMonitorOpen?: () => void
 		isMonitorOn?: boolean
 		onPhoneSelect?: () => void
 		onPhoneAnchorChange?: (anchor: { x: number; y: number }) => void
 		isPhonePopupOpen?: boolean
+		onHeadphoneSelect?: () => void
+		onHeadphoneAnchorChange?: (anchor: { x: number; y: number }) => void
 	} = $props()
 
 	interactivity()
 	const { camera, size } = useThrelte()
 	// Tuned anchor so contact popup projects above the phone on the desk.
 	const phoneWorldPosition = new Vector3(0.64, 0.24, -0.06)
+	const headphoneWorldPosition = new Vector3(-0.6, 0.47, -0.05)
 	const projected = new Vector3()
 
 	function handleMonitorClick() {
@@ -42,10 +47,14 @@
 		if (!activeCamera || !viewportSize) return
 
 		projected.copy(phoneWorldPosition).project(activeCamera)
-		const x = (projected.x * 0.5 + 0.5) * viewportSize.width
-		const y = (-projected.y * 0.5 + 0.5) * viewportSize.height
+		const phoneX = (projected.x * 0.5 + 0.5) * viewportSize.width
+		const phoneY = (-projected.y * 0.5 + 0.5) * viewportSize.height
+		onPhoneAnchorChange?.({ x: phoneX, y: phoneY })
 
-		onPhoneAnchorChange?.({ x, y })
+		projected.copy(headphoneWorldPosition).project(activeCamera)
+		const headphoneX = (projected.x * 0.5 + 0.5) * viewportSize.width
+		const headphoneY = (-projected.y * 0.5 + 0.5) * viewportSize.height
+		onHeadphoneAnchorChange?.({ x: headphoneX, y: headphoneY })
 	})
 </script>
 
@@ -114,7 +123,7 @@
 <Mouse />
 <Lamp />
 <Phone onSelect={onPhoneSelect} isActive={isPhonePopupOpen} />
-<Headphone />
+<Headphone onSelect={onHeadphoneSelect} />
 
 <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.02, 0]} receiveShadow>
 	<T.PlaneGeometry args={[24, 24]} />

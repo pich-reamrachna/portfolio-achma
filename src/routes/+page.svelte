@@ -3,14 +3,21 @@
 	import PortfolioScene from '$lib/components/scene/PortfolioScene.svelte'
 	import HologramDesktop from '$lib/components/hologram/HologramDesktop.svelte'
 	import PhoneContactPopup from '$lib/components/hologram/PhoneContactPopup.svelte'
+	import HeadphoneMusicPopup from '$lib/components/hologram/HeadphoneMusicPopup.svelte'
+	import HeadphoneMusicNotes from '$lib/components/hologram/HeadphoneMusicNotes.svelte'
 	import './page.css'
 
 	let hologramOpen = $state(false)
 	let monitorOn = $state(false)
 	let contactPopupOpen = $state(false)
+	let musicPopupOpen = $state(false)
+	let headphoneMusicPlaying = $state(false)
 	let phoneAnchor = $state({ x: 0, y: 0 })
+	let headphoneAnchor = $state({ x: 0, y: 0 })
 	let suppressPhoneToggleUntil = 0
 	let ignoreOutsideCloseUntil = 0
+	let suppressHeadphoneToggleUntil = 0
+	let ignoreHeadphoneOutsideCloseUntil = 0
 	let phoneClickSound: HTMLAudioElement | null = null
 	let monitorTapSound: HTMLAudioElement | null = null
 	let lastMonitorTapSoundAt = 0
@@ -74,8 +81,22 @@
 		}
 	}
 
+	function toggleMusicPopup() {
+		const now = performance.now()
+		if (now < suppressHeadphoneToggleUntil) return
+
+		musicPopupOpen = !musicPopupOpen
+		if (musicPopupOpen) {
+			ignoreHeadphoneOutsideCloseUntil = now + 120
+		}
+	}
+
 	function handlePhoneAnchorChange(anchor: { x: number; y: number }) {
 		phoneAnchor = anchor
+	}
+
+	function handleHeadphoneAnchorChange(anchor: { x: number; y: number }) {
+		headphoneAnchor = anchor
 	}
 
 	$effect(() => {
@@ -98,6 +119,25 @@
 			window.removeEventListener('click', handleWindowClick)
 		}
 	})
+
+	$effect(() => {
+		if (!musicPopupOpen) return
+
+		const handleWindowClick = (event: MouseEvent) => {
+			const now = performance.now()
+			if (now < ignoreHeadphoneOutsideCloseUntil) return
+
+			const target = event.target
+			if (target instanceof Element && target.closest('.headphone-player-card')) return
+			musicPopupOpen = false
+			suppressHeadphoneToggleUntil = now + 120
+		}
+
+		window.addEventListener('click', handleWindowClick)
+		return () => {
+			window.removeEventListener('click', handleWindowClick)
+		}
+	})
 </script>
 
 <div class="page">
@@ -108,6 +148,8 @@
 			onPhoneSelect={toggleContactPopup}
 			onPhoneAnchorChange={handlePhoneAnchorChange}
 			isPhonePopupOpen={contactPopupOpen}
+			onHeadphoneSelect={toggleMusicPopup}
+			onHeadphoneAnchorChange={handleHeadphoneAnchorChange}
 		/>
 	</Canvas>
 
@@ -116,5 +158,12 @@
 		open={contactPopupOpen}
 		anchor={phoneAnchor}
 		onClose={() => (contactPopupOpen = false)}
+	/>
+	<HeadphoneMusicNotes open={headphoneMusicPlaying} anchor={headphoneAnchor} />
+	<HeadphoneMusicPopup
+		open={musicPopupOpen}
+		anchor={headphoneAnchor}
+		onClose={() => (musicPopupOpen = false)}
+		onPlaybackChange={(playing) => (headphoneMusicPlaying = playing)}
 	/>
 </div>
