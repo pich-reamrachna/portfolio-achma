@@ -5,6 +5,7 @@
 	import Desk from './Desk.svelte'
 	import Computer from './Computer.svelte'
 	import Keyboard from './Keyboard.svelte'
+	import Mousepad from './Mousepad.svelte'
 	import Lamp from './Lamp.svelte'
 	import Phone from './Phone.svelte'
 	import Headphone from './Headphone.svelte'
@@ -107,6 +108,7 @@
 	onPowerChange={() => onMonitorOpen?.()}
 	isPowered={isMonitorOn}
 />
+<Mousepad />
 <Keyboard />
 <Lamp />
 <Phone onSelect={onPhoneSelect} isActive={isPhonePopupOpen} />

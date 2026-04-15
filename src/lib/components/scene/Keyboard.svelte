@@ -23,6 +23,6 @@
 	url="/models/keyboard.glb"
 	bind:scene
 	scale={1.2}
-	position={[-22.269, -0.752, 4.096]}
+	position={[-22.269, -0.698, 4.096]}
 	rotation={[0, 0, 0]}
 />
