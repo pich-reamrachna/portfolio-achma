@@ -72,6 +72,13 @@
 		0 0 0 1px rgba(0, 0, 0, 0.9) inset;
 }
 
+.icon-glyph {
+	width: 14px;
+	height: 14px;
+	display: block;
+	fill: currentColor;
+}
+
 .comic-banner {
 	position: absolute;
 	left: calc(100% + 10px);
