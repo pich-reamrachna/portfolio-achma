@@ -2,7 +2,7 @@
 	import { Canvas } from '@threlte/core'
 	import PortfolioScene from '$lib/components/scene/PortfolioScene.svelte'
 	import AssetProgressReporter from '$lib/components/scene/AssetProgressReporter.svelte'
-	import HologramDesktop from '$lib/components/hologram/HologramDesktop.svelte'
+	import MonitorOS from '$lib/components/monitor-os/MonitorOS.svelte'
 	import PhoneContactPopup from '$lib/components/hologram/PhoneContactPopup.svelte'
 	import HeadphoneMusicPopup from '$lib/components/hologram/HeadphoneMusicPopup.svelte'
 	import HeadphoneMusicNotes from '$lib/components/hologram/HeadphoneMusicNotes.svelte'
@@ -28,8 +28,8 @@
 	let assetsDone = $state(false)
 	let assetsActive = $state(false)
 
-	let hologramOpen = $state(false)
-	let monitorOn = $state(false)
+	let isMonitorOn = $state(false)
+	let monitorOSOpen = $state(false)
 	let contactPopupOpen = $state(false)
 	let musicPopupOpen = $state(false)
 	let headphoneMusicPlaying = $state(false)
@@ -56,15 +56,18 @@
 		}
 	})
 
-	function openMonitorExperience() {
+	function handleMonitorOpen() {
 		playMonitorTap()
-		monitorOn = true
-		hologramOpen = true
+		isMonitorOn = true
 	}
 
-	function closeMonitorExperience() {
-		hologramOpen = false
-		monitorOn = false
+	function handleZoomComplete() {
+		monitorOSOpen = true
+	}
+
+	function handleOSClose() {
+		monitorOSOpen = false
+		isMonitorOn = false
 	}
 
 	function toggleContactPopup() {
@@ -161,8 +164,9 @@
 		<Canvas shadows={highPerf} dpr={highPerf ? 2 : 1}>
 			<AssetProgressReporter onChange={handleAssetProgress} />
 			<PortfolioScene
-				onMonitorOpen={openMonitorExperience}
-				isMonitorOn={monitorOn}
+				onMonitorOpen={handleMonitorOpen}
+				isMonitorOn={isMonitorOn}
+				onZoomComplete={handleZoomComplete}
 				onPhoneSelect={toggleContactPopup}
 				onPhoneAnchorChange={handlePhoneAnchorChange}
 				isPhonePopupOpen={contactPopupOpen}
@@ -172,7 +176,7 @@
 		</Canvas>
 	</div>
 
-	<HologramDesktop open={hologramOpen} onClose={closeMonitorExperience} />
+	<MonitorOS open={monitorOSOpen} onClose={handleOSClose} />
 	<PhoneContactPopup open={contactPopupOpen} anchor={phoneAnchor} />
 	<HeadphoneMusicNotes open={headphoneMusicPlaying} anchor={headphoneAnchor} />
 	<HeadphoneMusicPopup
