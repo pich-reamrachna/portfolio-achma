@@ -47,12 +47,13 @@
 	let pointerX = $state(0)
 	let pointerY = $state(0)
 
-	// Defer decorative props so the browser prioritises primary models first.
+	// Defer decorative props. Low-perf devices get a longer grace period so
+	// primary models finish uploading to GPU before secondary ones begin.
 	let showSecondary = $state(false)
 	$effect(() => {
 		const id = setTimeout(() => {
 			showSecondary = true
-		}, 150)
+		}, highPerf ? 150 : 800)
 		return () => clearTimeout(id)
 	})
 

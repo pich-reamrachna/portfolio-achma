@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Canvas } from '@threlte/core'
+	import { WebGLRenderer } from 'three'
 	import PortfolioScene from '$lib/components/scene/PortfolioScene.svelte'
 	import AssetProgressReporter from '$lib/components/scene/AssetProgressReporter.svelte'
 	import MonitorOS from '$lib/components/monitor-os/MonitorOS.svelte'
@@ -12,14 +13,52 @@
 	import './page.css'
 
 	// ── Performance detection ──────────────────────────────────────
-	// Runs synchronously in browser before first render so Canvas gets
-	// the right quality settings immediately without remounting.
+	// Runs synchronously before Canvas mounts. We probe the actual GPU
+	// renderer string (Intel/Mesa/SwiftShader = integrated = low-perf)
+	// because CPU core/RAM counts miss integrated-GPU laptops entirely.
 	function detectHighPerf(): boolean {
 		if (typeof window === 'undefined') return true
+
+		// Low RAM (<= 4 GB) almost always means integrated/shared GPU memory.
 		const mem = (navigator as unknown as { deviceMemory?: number }).deviceMemory
-		if (mem !== undefined && mem <= 2) return false
+		if (mem !== undefined && mem <= 4) return false
+
+		// Few cores → likely a budget device.
 		const cores = navigator.hardwareConcurrency
-		if (cores !== undefined && cores <= 2) return false
+		if (cores !== undefined && cores <= 4) return false
+
+		// Probe GPU renderer string — the most reliable signal.
+		// We create a minimal 1×1 WebGL canvas, read the string, then
+		// immediately destroy the context so we don't waste one of the
+		// browser's ~16-context limit.
+		try {
+			const probe = document.createElement('canvas')
+			probe.width = 1
+			probe.height = 1
+			const gl = probe.getContext('webgl') as WebGLRenderingContext | null
+			if (gl) {
+				const ext = gl.getExtension('WEBGL_debug_renderer_info')
+				const renderer = ext
+					? (gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) as string).toLowerCase()
+					: ''
+				// Release the context immediately before Three.js needs its own.
+				gl.getExtension('WEBGL_lose_context')?.loseContext()
+				if (
+					renderer.includes('intel') ||
+					renderer.includes('mesa') ||
+					renderer.includes('llvm') ||
+					renderer.includes('swiftshader') ||
+					renderer.includes('mali') ||
+					renderer.includes('adreno')
+				) {
+					return false
+				}
+			}
+		} catch {
+			// If WebGL probe itself fails, the main context will too — go low-perf.
+			return false
+		}
+
 		return true
 	}
 	const highPerf = detectHighPerf()
@@ -28,6 +67,18 @@
 	let assetProgress = $state(0)
 	let assetsDone = $state(false)
 	let assetsActive = $state(false)
+	let webglFailed = $state(false)
+
+	// Cap DPR: 2x = 4× pixels. 1.5x is visually indistinguishable and much cheaper.
+	const dpr = highPerf ? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5) : 1
+
+	$effect(() => {
+		const onReject = (e: PromiseRejectionEvent) => {
+			if (String(e.reason).toLowerCase().includes('webgl')) webglFailed = true
+		}
+		window.addEventListener('unhandledrejection', onReject)
+		return () => window.removeEventListener('unhandledrejection', onReject)
+	})
 
 	let isMonitorOn = $state(false)
 	let monitorOSOpen = $state(false)
@@ -162,7 +213,22 @@
 <div class="page">
 	<!-- Canvas renders behind the loading screen so assets load immediately -->
 	<div class="scene-wrap" class:visible={sceneVisible}>
-		<Canvas shadows={highPerf} dpr={highPerf ? 2 : 1}>
+		{#if webglFailed}
+			<div class="webgl-fallback">
+				<p>// WebGL unavailable on this device</p>
+				<p>Try updating your graphics drivers or opening in a different browser.</p>
+			</div>
+		{/if}
+		<Canvas
+			shadows={highPerf}
+			{dpr}
+			createRenderer={(canvas) =>
+				new WebGLRenderer({
+					canvas,
+					antialias: highPerf,
+					powerPreference: highPerf ? 'high-performance' : 'default'
+				})}
+		>
 			<AssetProgressReporter onChange={handleAssetProgress} />
 			<PortfolioScene
 				{highPerf}
