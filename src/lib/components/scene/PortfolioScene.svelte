@@ -21,7 +21,8 @@
 		onPhoneAnchorChange,
 		isPhonePopupOpen = false,
 		onHeadphoneSelect,
-		onHeadphoneAnchorChange
+		onHeadphoneAnchorChange,
+		onZoomComplete
 	}: {
 		highPerf?: boolean
 		onMonitorOpen?: () => void
@@ -31,6 +32,7 @@
 		isPhonePopupOpen?: boolean
 		onHeadphoneSelect?: () => void
 		onHeadphoneAnchorChange?: (anchor: { x: number; y: number }) => void
+		onZoomComplete?: () => void
 	} = $props()
 
 	interactivity()
@@ -40,10 +42,10 @@
 	const headphoneWorldPosition = new Vector3(-0.6, 0.47, -0.05)
 	const projected = new Vector3()
 	const baseCameraPosition = new Vector3(0, 1, 2)
+	const zoomTarget = new Vector3(0, 0.65, 0.55)
+	let zoomFired = $state(false)
 	let pointerX = $state(0)
 	let pointerY = $state(0)
-	let lockedCameraX = $state<number | null>(null)
-	let lockedCameraY = $state<number | null>(null)
 
 	// Defer decorative props so the browser prioritises primary models first.
 	let showSecondary = $state(false)
@@ -81,30 +83,22 @@
 		const viewportSize = size.current
 		if (!activeCamera || !viewportSize) return
 
-		if (isMonitorOn && lockedCameraX === null) {
-			lockedCameraX = activeCamera.position.x
+		if (isMonitorOn && !zoomFired) {
+			activeCamera.position.x += (zoomTarget.x - activeCamera.position.x) * 0.055
+			activeCamera.position.y += (zoomTarget.y - activeCamera.position.y) * 0.055
+			activeCamera.position.z += (zoomTarget.z - activeCamera.position.z) * 0.055
+			if (Math.abs(activeCamera.position.z - zoomTarget.z) < 0.04) {
+				zoomFired = true
+				onZoomComplete?.()
+			}
+		} else if (!isMonitorOn) {
+			if (zoomFired) zoomFired = false
+			const xOffset = pointerX * 0.12
+			const yOffset = pointerY * -0.05
+			activeCamera.position.x += (baseCameraPosition.x + xOffset - activeCamera.position.x) * 0.065
+			activeCamera.position.y += (baseCameraPosition.y + yOffset - activeCamera.position.y) * 0.05
+			activeCamera.position.z += (baseCameraPosition.z - activeCamera.position.z) * 0.04
 		}
-		if (isMonitorOn && lockedCameraY === null) {
-			lockedCameraY = activeCamera.position.y
-		}
-		if (!isMonitorOn && lockedCameraX !== null) {
-			lockedCameraX = null
-		}
-		if (!isMonitorOn && lockedCameraY !== null) {
-			lockedCameraY = null
-		}
-
-		const xOffset = pointerX * 0.12
-		const yOffset = pointerY * -0.05
-		const targetX = isMonitorOn
-			? (lockedCameraX ?? baseCameraPosition.x)
-			: baseCameraPosition.x + xOffset
-		const targetY = isMonitorOn
-			? (lockedCameraY ?? baseCameraPosition.y)
-			: baseCameraPosition.y + yOffset
-		activeCamera.position.x += (targetX - activeCamera.position.x) * 0.065
-		activeCamera.position.y += (targetY - activeCamera.position.y) * 0.05
-		activeCamera.position.z += (baseCameraPosition.z - activeCamera.position.z) * 0.04
 
 		projected.copy(phoneWorldPosition).project(activeCamera)
 		const phoneX = (projected.x * 0.5 + 0.5) * viewportSize.width
