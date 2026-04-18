@@ -59,18 +59,28 @@
 	$effect(() => {
 		if (typeof window === 'undefined') return
 
+		let rafId = 0
+		let pendingX = 0
+		let pendingY = 0
+
+		const flush = () => {
+			rafId = 0
+			pointerX = pendingX
+			pointerY = pendingY
+		}
+
 		const handlePointerMove = (event: PointerEvent) => {
 			const width = Math.max(window.innerWidth, 1)
 			const height = Math.max(window.innerHeight, 1)
-			const normalizedX = event.clientX / width
-			const normalizedY = event.clientY / height
-			pointerX = normalizedX * 2 - 1
-			pointerY = normalizedY * 2 - 1
+			pendingX = (event.clientX / width) * 2 - 1
+			pendingY = (event.clientY / height) * 2 - 1
+			if (!rafId) rafId = requestAnimationFrame(flush)
 		}
 
-		window.addEventListener('pointermove', handlePointerMove)
+		window.addEventListener('pointermove', handlePointerMove, { passive: true })
 		return () => {
 			window.removeEventListener('pointermove', handlePointerMove)
+			if (rafId) cancelAnimationFrame(rafId)
 		}
 	})
 
@@ -78,27 +88,36 @@
 		onMonitorOpen?.()
 	}
 
-	useTask(() => {
+	useTask((delta) => {
 		const activeCamera = camera.current
 		const viewportSize = size.current
 		if (!activeCamera || !viewportSize) return
 
+		// Frame-rate independent lerp: converges in same wall-clock time at any fps.
+		// decay=8 → ~63% there in 0.125s, ~95% in 0.375s
+		const clampedDelta = Math.min(delta, 0.1) // cap for tab-switch spikes
+
 		if (isMonitorOn && !zoomFired) {
-			activeCamera.position.x += (zoomTarget.x - activeCamera.position.x) * 0.055
-			activeCamera.position.y += (zoomTarget.y - activeCamera.position.y) * 0.055
-			activeCamera.position.z += (zoomTarget.z - activeCamera.position.z) * 0.055
+			const t = 1 - Math.exp(-8 * clampedDelta)
+			activeCamera.position.x += (zoomTarget.x - activeCamera.position.x) * t
+			activeCamera.position.y += (zoomTarget.y - activeCamera.position.y) * t
+			activeCamera.position.z += (zoomTarget.z - activeCamera.position.z) * t
 			if (Math.abs(activeCamera.position.z - zoomTarget.z) < 0.04) {
 				zoomFired = true
 				onZoomComplete?.()
 			}
 		} else if (!isMonitorOn) {
 			if (zoomFired) zoomFired = false
+			const t = 1 - Math.exp(-4 * clampedDelta)
 			const xOffset = pointerX * 0.12
 			const yOffset = pointerY * -0.05
-			activeCamera.position.x += (baseCameraPosition.x + xOffset - activeCamera.position.x) * 0.065
-			activeCamera.position.y += (baseCameraPosition.y + yOffset - activeCamera.position.y) * 0.05
-			activeCamera.position.z += (baseCameraPosition.z - activeCamera.position.z) * 0.04
+			activeCamera.position.x += (baseCameraPosition.x + xOffset - activeCamera.position.x) * t
+			activeCamera.position.y += (baseCameraPosition.y + yOffset - activeCamera.position.y) * t
+			activeCamera.position.z += (baseCameraPosition.z - activeCamera.position.z) * t
 		}
+
+		// Skip 3-D→2-D projections once the monitor is fully zoomed in.
+		if (zoomFired) return
 
 		projected.copy(phoneWorldPosition).project(activeCamera)
 		const phoneX = (projected.x * 0.5 + 0.5) * viewportSize.width
@@ -153,21 +172,23 @@
 {#if highPerf}<SceneOutline />{/if}
 <Desk />
 <PinkWall />
-<!-- Pink rim lights behind monitor edges (left/right) -->
-<T.PointLight
-	position={[-0.66, 0.72, -0.16]}
-	intensity={0.32}
-	distance={0.45}
-	decay={2}
-	color="#d879a8"
-/>
-<T.PointLight
-	position={[0.66, 0.72, -0.16]}
-	intensity={0.32}
-	distance={0.45}
-	decay={2}
-	color="#d879a8"
-/>
+{#if highPerf}
+	<!-- Pink rim lights — skipped on low-perf to reduce draw calls -->
+	<T.PointLight
+		position={[-0.66, 0.72, -0.16]}
+		intensity={0.32}
+		distance={0.45}
+		decay={2}
+		color="#d879a8"
+	/>
+	<T.PointLight
+		position={[0.66, 0.72, -0.16]}
+		intensity={0.32}
+		distance={0.45}
+		decay={2}
+		color="#d879a8"
+	/>
+{/if}
 <Computer
 	onSelect={handleMonitorClick}
 	onPowerChange={() => onMonitorOpen?.()}
@@ -184,11 +205,15 @@
 
 <T.Mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.02, 0]} receiveShadow>
 	<T.PlaneGeometry args={[24, 24]} />
-	<T.MeshPhysicalMaterial
-		color="#2f2f2f"
-		roughness={0.08}
-		metalness={0.2}
-		clearcoat={1}
-		clearcoatRoughness={0.1}
-	/>
+	{#if highPerf}
+		<T.MeshPhysicalMaterial
+			color="#2f2f2f"
+			roughness={0.08}
+			metalness={0.2}
+			clearcoat={1}
+			clearcoatRoughness={0.1}
+		/>
+	{:else}
+		<T.MeshStandardMaterial color="#2f2f2f" roughness={0.35} metalness={0.15} />
+	{/if}
 </T.Mesh>

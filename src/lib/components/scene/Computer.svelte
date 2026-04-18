@@ -43,8 +43,8 @@
 	$effect(() => {
 		if (typeof window === 'undefined') return
 		const canvas = document.createElement('canvas')
-		canvas.width = 512
-		canvas.height = 512
+		canvas.width = 256
+		canvas.height = 256
 		catCtx = canvas.getContext('2d')
 		catTexture = new CanvasTexture(canvas)
 
@@ -161,10 +161,10 @@
 	useTask((delta) => {
 		if (isPowered || !catCtx || !catTexture || !catImg) return
 
-		angle += delta * 0.75 // ~0.75 rad/s — one full rotation every ~8s
+		angle += delta * 0.75
 
-		const size = 512
-		const logoSize = 260
+		const size = 256
+		const logoSize = 130
 		catCtx.clearRect(0, 0, size, size)
 		catCtx.fillStyle = '#000000'
 		catCtx.fillRect(0, 0, size, size)

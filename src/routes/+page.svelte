@@ -165,6 +165,7 @@
 		<Canvas shadows={highPerf} dpr={highPerf ? 2 : 1}>
 			<AssetProgressReporter onChange={handleAssetProgress} />
 			<PortfolioScene
+				{highPerf}
 				onMonitorOpen={handleMonitorOpen}
 				{isMonitorOn}
 				onZoomComplete={handleZoomComplete}
