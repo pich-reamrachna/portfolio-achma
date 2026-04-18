@@ -8,6 +8,8 @@
 	import { onDestroy } from 'svelte'
 	import { outlinedObjects } from '$lib/stores/outline'
 
+	let { paused = false }: { paused?: boolean } = $props()
+
 	const { autoRenderTask, renderer, scene, camera, size, renderStage } = useThrelte()
 
 	// Hand rendering over to the composer.
@@ -47,6 +49,7 @@
 
 	useTask(
 		() => {
+			if (paused) return
 			renderPass.camera = camera.current
 			outlinePass.renderCamera = camera.current
 			composer.render()

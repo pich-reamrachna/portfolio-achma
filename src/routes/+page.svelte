@@ -73,17 +73,35 @@
 		: 1
 
 	$effect(() => {
-		// Capture webglcontextlost on any canvas before Three.js sees it.
+		// Three.js calls e.preventDefault() on webglcontextlost to signal it will
+		// restore the context automatically. We only show the error screen if the
+		// context isn't restored within 5 seconds (i.e. truly unrecoverable).
+		let lostTimer = 0
+
 		const onContextLost = (e: Event) => {
-			if ((e.target as HTMLElement)?.tagName === 'CANVAS') webglFailed = true
+			if ((e.target as HTMLElement)?.tagName !== 'CANVAS') return
+			lostTimer = window.setTimeout(() => {
+				webglFailed = true
+			}, 5000)
 		}
+
+		const onContextRestored = (e: Event) => {
+			if ((e.target as HTMLElement)?.tagName !== 'CANVAS') return
+			clearTimeout(lostTimer)
+			webglFailed = false
+		}
+
 		const onReject = (e: PromiseRejectionEvent) => {
 			if (String(e.reason).toLowerCase().includes('webgl')) webglFailed = true
 		}
+
 		document.addEventListener('webglcontextlost', onContextLost, true)
+		document.addEventListener('webglcontextrestored', onContextRestored, true)
 		window.addEventListener('unhandledrejection', onReject)
 		return () => {
+			clearTimeout(lostTimer)
 			document.removeEventListener('webglcontextlost', onContextLost, true)
+			document.removeEventListener('webglcontextrestored', onContextRestored, true)
 			window.removeEventListener('unhandledrejection', onReject)
 		}
 	})

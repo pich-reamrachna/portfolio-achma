@@ -173,7 +173,7 @@
 	/>
 {/if}
 
-{#if highPerf}<SceneOutline />{/if}
+{#if highPerf}<SceneOutline paused={isMonitorOn && zoomFired} />{/if}
 <Desk />
 <PinkWall />
 {#if highPerf}
