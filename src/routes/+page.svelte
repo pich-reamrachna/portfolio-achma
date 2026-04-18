@@ -28,9 +28,9 @@
 		if (cores !== undefined && cores <= 4) return false
 
 		// Probe GPU renderer string — the most reliable signal.
-		// We create a minimal 1×1 WebGL canvas, read the string, then
-		// immediately destroy the context so we don't waste one of the
-		// browser's ~16-context limit.
+		// IMPORTANT: Do NOT call loseContext() on the probe. On some Intel/AMD
+		// drivers, losing one context propagates the loss to ALL WebGL contexts
+		// on the page, including Three.js's. Let the probe canvas be GC'd naturally.
 		try {
 			const probe = document.createElement('canvas')
 			probe.width = 1
@@ -41,8 +41,6 @@
 				const renderer = ext
 					? (gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) as string).toLowerCase()
 					: ''
-				// Release the context immediately before Three.js needs its own.
-				gl.getExtension('WEBGL_lose_context')?.loseContext()
 				if (
 					renderer.includes('intel') ||
 					renderer.includes('mesa') ||
@@ -70,14 +68,24 @@
 	let webglFailed = $state(false)
 
 	// Cap DPR: 2x = 4× pixels. 1.5x is visually indistinguishable and much cheaper.
-	const dpr = highPerf ? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5) : 1
+	const dpr = highPerf
+		? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5)
+		: 1
 
 	$effect(() => {
+		// Capture webglcontextlost on any canvas before Three.js sees it.
+		const onContextLost = (e: Event) => {
+			if ((e.target as HTMLElement)?.tagName === 'CANVAS') webglFailed = true
+		}
 		const onReject = (e: PromiseRejectionEvent) => {
 			if (String(e.reason).toLowerCase().includes('webgl')) webglFailed = true
 		}
+		document.addEventListener('webglcontextlost', onContextLost, true)
 		window.addEventListener('unhandledrejection', onReject)
-		return () => window.removeEventListener('unhandledrejection', onReject)
+		return () => {
+			document.removeEventListener('webglcontextlost', onContextLost, true)
+			window.removeEventListener('unhandledrejection', onReject)
+		}
 	})
 
 	let isMonitorOn = $state(false)
@@ -215,8 +223,9 @@
 	<div class="scene-wrap" class:visible={sceneVisible}>
 		{#if webglFailed}
 			<div class="webgl-fallback">
-				<p>// WebGL unavailable on this device</p>
-				<p>Try updating your graphics drivers or opening in a different browser.</p>
+				<p>// GPU context lost</p>
+				<p>Your graphics driver dropped the WebGL context.</p>
+				<button onclick={() => window.location.reload()}>↺ Reload</button>
 			</div>
 		{/if}
 		<Canvas

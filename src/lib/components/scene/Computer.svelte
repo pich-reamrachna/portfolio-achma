@@ -30,7 +30,7 @@
 
 	let materials = $state<Record<string, MonitorMaterial> | null>(null)
 	let scene = $state<{ traverse: (cb: (o: unknown) => void) => void } | null>(null)
-	let isWhite = $state(isPowered)
+	let isWhite = $derived(isPowered)
 	let isHovered = $state(false)
 	const { invalidate } = useThrelte()
 
@@ -138,10 +138,6 @@
 			m.needsUpdate = true
 		}
 	}
-
-	$effect(() => {
-		isWhite = isPowered
-	})
 
 	$effect(() => {
 		applyColor()

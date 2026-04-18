@@ -51,9 +51,12 @@
 	// primary models finish uploading to GPU before secondary ones begin.
 	let showSecondary = $state(false)
 	$effect(() => {
-		const id = setTimeout(() => {
-			showSecondary = true
-		}, highPerf ? 150 : 800)
+		const id = setTimeout(
+			() => {
+				showSecondary = true
+			},
+			highPerf ? 150 : 800
+		)
 		return () => clearTimeout(id)
 	})
 
