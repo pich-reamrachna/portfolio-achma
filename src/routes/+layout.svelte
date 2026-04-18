@@ -23,8 +23,8 @@
 		content="Interactive 3D portfolio showcasing web and cybersecurity projects."
 	/>
 	<meta property="og:url" content="https://achma.site/" />
-	<meta property="og:image" content="https://achma.site/og-cover.jpg" />
-	<meta property="og:image:secure_url" content="https://achma.site/og-cover.jpg" />
+	<meta property="og:image" content="https://achma.site/og-cover.jpg?v=2" />
+	<meta property="og:image:secure_url" content="https://achma.site/og-cover.jpg?v=2" />
 	<meta property="og:image:type" content="image/jpeg" />
 	<meta property="og:image:width" content="3780" />
 	<meta property="og:image:height" content="1890" />
@@ -35,7 +35,7 @@
 		name="twitter:description"
 		content="Interactive 3D portfolio showcasing frontend projects, UI experiments, and creative web experiences."
 	/>
-	<meta name="twitter:image" content="https://achma.site/og-cover.jpg" />
+	<meta name="twitter:image" content="https://achma.site/og-cover.jpg?v=2" />
 </svelte:head>
 
 {@render children()}
