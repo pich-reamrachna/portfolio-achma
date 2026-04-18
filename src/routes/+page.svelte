@@ -12,53 +12,21 @@
 	import { createSound } from '$lib/sound'
 	import './page.css'
 
-	// ── Performance detection ──────────────────────────────────────
-	// Runs synchronously before Canvas mounts. We probe the actual GPU
-	// renderer string (Intel/Mesa/SwiftShader = integrated = low-perf)
-	// because CPU core/RAM counts miss integrated-GPU laptops entirely.
+	// Heuristic-only performance detection.
+	// Avoid creating a temporary probe WebGL context before the main renderer.
 	function detectHighPerf(): boolean {
 		if (typeof window === 'undefined') return true
 
-		// Low RAM (<= 4 GB) almost always means integrated/shared GPU memory.
 		const mem = (navigator as unknown as { deviceMemory?: number }).deviceMemory
 		if (mem !== undefined && mem <= 4) return false
 
-		// Few cores → likely a budget device.
 		const cores = navigator.hardwareConcurrency
 		if (cores !== undefined && cores <= 4) return false
 
-		// Probe GPU renderer string — the most reliable signal.
-		// IMPORTANT: Do NOT call loseContext() on the probe. On some Intel/AMD
-		// drivers, losing one context propagates the loss to ALL WebGL contexts
-		// on the page, including Three.js's. Let the probe canvas be GC'd naturally.
-		try {
-			const probe = document.createElement('canvas')
-			probe.width = 1
-			probe.height = 1
-			const gl = probe.getContext('webgl') as WebGLRenderingContext | null
-			if (gl) {
-				const ext = gl.getExtension('WEBGL_debug_renderer_info')
-				const renderer = ext
-					? (gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) as string).toLowerCase()
-					: ''
-				if (
-					renderer.includes('intel') ||
-					renderer.includes('mesa') ||
-					renderer.includes('llvm') ||
-					renderer.includes('swiftshader') ||
-					renderer.includes('mali') ||
-					renderer.includes('adreno')
-				) {
-					return false
-				}
-			}
-		} catch {
-			// If WebGL probe itself fails, the main context will too — go low-perf.
-			return false
-		}
-
+		if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return false
 		return true
 	}
+
 	const highPerf = detectHighPerf()
 
 	let sceneVisible = $state(false)
@@ -66,22 +34,55 @@
 	let assetsDone = $state(false)
 	let assetsActive = $state(false)
 	let webglFailed = $state(false)
+	let safeMode = $state(false)
 
-	// Cap DPR: 2x = 4× pixels. 1.5x is visually indistinguishable and much cheaper.
-	const dpr = highPerf
-		? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5)
+	const baseDpr = highPerf
+		? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.25)
 		: 1
+	const dpr = $derived(safeMode ? 1 : baseDpr)
+	const useShadows = $derived(highPerf && !safeMode)
+
+	function createSafeRenderer(canvas: HTMLCanvasElement): WebGLRenderer {
+		try {
+			safeMode = false
+			return new WebGLRenderer({
+				canvas,
+				stencil: false,
+				depth: true,
+				antialias: highPerf,
+				powerPreference: highPerf ? 'high-performance' : 'default',
+				precision: 'highp'
+			})
+		} catch (primaryError) {
+			try {
+				safeMode = true
+				return new WebGLRenderer({
+					canvas,
+					stencil: false,
+					depth: true,
+					antialias: false,
+					powerPreference: 'low-power',
+					precision: 'mediump'
+				})
+			} catch {
+				webglFailed = true
+				safeMode = true
+				throw primaryError instanceof Error
+					? primaryError
+					: new Error('Error creating WebGL context.')
+			}
+		}
+	}
 
 	$effect(() => {
-		// Three.js calls e.preventDefault() on webglcontextlost to signal it will
-		// restore the context automatically. We only show the error screen if the
-		// context isn't restored within 5 seconds (i.e. truly unrecoverable).
 		let lostTimer = 0
 
 		const onContextLost = (e: Event) => {
 			if ((e.target as HTMLElement)?.tagName !== 'CANVAS') return
+			if (e.cancelable) e.preventDefault()
 			lostTimer = window.setTimeout(() => {
 				webglFailed = true
+				safeMode = true
 			}, 5000)
 		}
 
@@ -92,7 +93,10 @@
 		}
 
 		const onReject = (e: PromiseRejectionEvent) => {
-			if (String(e.reason).toLowerCase().includes('webgl')) webglFailed = true
+			if (String(e.reason).toLowerCase().includes('webgl')) {
+				webglFailed = true
+				safeMode = true
+			}
 		}
 
 		document.addEventListener('webglcontextlost', onContextLost, true)
@@ -156,7 +160,6 @@
 
 		contactPopupOpen = !contactPopupOpen
 		if (contactPopupOpen) {
-			// Ignore the same click cycle that opened the popup.
 			ignoreOutsideCloseUntil = now + 120
 		}
 	}
@@ -197,8 +200,6 @@
 			const target = event.target
 			if (target instanceof Element && target.closest('.phone-holo-card')) return
 			contactPopupOpen = false
-			// If this close came from the same click that also hits the phone,
-			// prevent immediate reopen.
 			suppressPhoneToggleUntil = now + 120
 		}
 
@@ -229,7 +230,7 @@
 </script>
 
 <svelte:head>
-	<!-- Preload the heaviest primary models so the browser fetches them before JS parses -->
+	<!-- Keep preloads focused on first-visible heavy models. -->
 	<link rel="preload" href="/models/desk.glb" as="fetch" crossorigin="anonymous" />
 	<link rel="preload" href="/models/monitor.glb" as="fetch" crossorigin="anonymous" />
 	<link rel="preload" href="/models/iphone.glb" as="fetch" crossorigin="anonymous" />
@@ -237,38 +238,29 @@
 </svelte:head>
 
 <div class="page">
-	<!-- Canvas renders behind the loading screen so assets load immediately -->
 	<div class="scene-wrap" class:visible={sceneVisible}>
 		{#if webglFailed}
 			<div class="webgl-fallback">
-				<p>// GPU context lost</p>
-				<p>Your graphics driver dropped the WebGL context.</p>
-				<button onclick={() => window.location.reload()}>↺ Reload</button>
+				<p>// GPU context unavailable</p>
+				<p>The browser blocked this page from creating another WebGL context.</p>
+				<button onclick={() => window.location.reload()}>Reload</button>
 			</div>
+		{:else}
+			<Canvas shadows={useShadows} {dpr} createRenderer={createSafeRenderer}>
+				<AssetProgressReporter onChange={handleAssetProgress} />
+				<PortfolioScene
+					highPerf={highPerf && !safeMode}
+					onMonitorOpen={handleMonitorOpen}
+					{isMonitorOn}
+					onZoomComplete={handleZoomComplete}
+					onPhoneSelect={toggleContactPopup}
+					onPhoneAnchorChange={handlePhoneAnchorChange}
+					isPhonePopupOpen={contactPopupOpen}
+					onHeadphoneSelect={toggleMusicPopup}
+					onHeadphoneAnchorChange={handleHeadphoneAnchorChange}
+				/>
+			</Canvas>
 		{/if}
-		<Canvas
-			shadows={highPerf}
-			{dpr}
-			createRenderer={(canvas) =>
-				new WebGLRenderer({
-					canvas,
-					antialias: highPerf,
-					powerPreference: highPerf ? 'high-performance' : 'default'
-				})}
-		>
-			<AssetProgressReporter onChange={handleAssetProgress} />
-			<PortfolioScene
-				{highPerf}
-				onMonitorOpen={handleMonitorOpen}
-				{isMonitorOn}
-				onZoomComplete={handleZoomComplete}
-				onPhoneSelect={toggleContactPopup}
-				onPhoneAnchorChange={handlePhoneAnchorChange}
-				isPhonePopupOpen={contactPopupOpen}
-				onHeadphoneSelect={toggleMusicPopup}
-				onHeadphoneAnchorChange={handleHeadphoneAnchorChange}
-			/>
-		</Canvas>
 	</div>
 
 	<MonitorOS open={monitorOSOpen} onClose={handleOSClose} />
