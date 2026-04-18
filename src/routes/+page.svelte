@@ -7,6 +7,7 @@
 	import HeadphoneMusicPopup from '$lib/components/hologram/HeadphoneMusicPopup.svelte'
 	import HeadphoneMusicNotes from '$lib/components/hologram/HeadphoneMusicNotes.svelte'
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte'
+	import WelcomeBubble from '$lib/components/WelcomeBubble.svelte'
 	import { createSound } from '$lib/sound'
 	import './page.css'
 
@@ -191,4 +192,6 @@
 		active={assetsActive}
 		onDone={() => (sceneVisible = true)}
 	/>
+
+	<WelcomeBubble show={sceneVisible} />
 </div>

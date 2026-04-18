@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { useThrelte } from '@threlte/core'
+	import { useThrelte, useTask } from '@threlte/core'
 	import { GLTF } from '@threlte/extras'
 	import { outlinedObjects } from '$lib/stores/outline'
+	import { CanvasTexture, type Texture } from 'three'
 	import type { Object3D } from 'three'
 
 	type MonitorMaterial = {
@@ -9,8 +10,8 @@
 		color?: { set: (value: string) => void }
 		emissive?: { set: (value: string) => void }
 		emissiveIntensity?: number
-		emissiveMap?: unknown
-		map?: unknown
+		emissiveMap?: Texture | null
+		map?: Texture | null
 		metalness?: number
 		roughness?: number
 		envMapIntensity?: number
@@ -26,11 +27,40 @@
 		onPowerChange?: (isOn: boolean) => void
 		isPowered?: boolean
 	} = $props()
+
 	let materials = $state<Record<string, MonitorMaterial> | null>(null)
 	let scene = $state<{ traverse: (cb: (o: unknown) => void) => void } | null>(null)
 	let isWhite = $state(isPowered)
 	let isHovered = $state(false)
 	const { invalidate } = useThrelte()
+
+	// ── Spinning idle screen ──
+	let catTexture: CanvasTexture | null = null
+	let catCtx: CanvasRenderingContext2D | null = null
+	let catImg: HTMLImageElement | null = null
+	let angle = 0
+
+	$effect(() => {
+		if (typeof window === 'undefined') return
+		const canvas = document.createElement('canvas')
+		canvas.width = 512
+		canvas.height = 512
+		catCtx = canvas.getContext('2d')
+		catTexture = new CanvasTexture(canvas)
+
+		const img = new Image()
+		img.onload = () => {
+			catImg = img
+		}
+		img.src = '/cat-logo-removebg-preview.svg'
+
+		return () => {
+			catTexture?.dispose()
+			catTexture = null
+			catCtx = null
+			catImg = null
+		}
+	})
 
 	const setMaterialColor = (
 		material: MonitorMaterial,
@@ -66,40 +96,46 @@
 		material.needsUpdate = true
 	}
 
+	const getScreenMaterials = (): MonitorMaterial[] => {
+		if (!materials) return []
+		const all = Object.values(materials)
+		const screenKw = ['screen', 'display', 'lcd', 'panel', 'glass', 'monitor']
+		const bodyKw = ['stand', 'base', 'bezel', 'frame', 'body', 'case', 'cable', 'port']
+		const isScreen = (name?: string) => {
+			const l = (name ?? '').toLowerCase()
+			return l ? screenKw.some((k) => l.includes(k)) && !bodyKw.some((k) => l.includes(k)) : false
+		}
+		const byName = all.filter((m) => isScreen(m?.name))
+		if (byName.length > 0) return byName
+		const byEmissive = all.filter(
+			(m) =>
+				m?.emissiveMap != null && !bodyKw.some((k) => (m?.name ?? '').toLowerCase().includes(k))
+		)
+		if (byEmissive.length > 0) return byEmissive
+		return all.filter((m) => !bodyKw.some((k) => (m?.name ?? '').toLowerCase().includes(k)))
+	}
+
 	const applyColor = () => {
 		if (!materials) return
-		const allMaterials = Object.values(materials)
-		const screenKeywords = ['screen', 'display', 'lcd', 'panel']
-		const bodyKeywords = ['stand', 'base', 'bezel', 'frame', 'body', 'case']
-		const isScreenMaterialName = (name?: string) => {
-			const lowered = (name ?? '').toLowerCase()
-			if (!lowered) return false
-			const hasScreenKeyword = screenKeywords.some((keyword) => lowered.includes(keyword))
-			const hasBodyKeyword = bodyKeywords.some((keyword) => lowered.includes(keyword))
-			return hasScreenKeyword && !hasBodyKeyword
+		const all = Object.values(materials)
+		for (const m of all) {
+			setMaterialColor(m, '#111111', 0)
+			tuneMaterial(m, false)
 		}
-
-		// Keep the monitor body dark.
-		for (const material of allMaterials) {
-			setMaterialColor(material, '#111111', 0)
-			tuneMaterial(material, false)
-		}
-
-		const screenMaterials = allMaterials.filter((material: MonitorMaterial) =>
-			isScreenMaterialName(material?.name)
-		)
-		const fallbackScreenMaterials =
-			screenMaterials.length > 0
-				? screenMaterials
-				: allMaterials.filter(
-						(material: MonitorMaterial) =>
-							Boolean(material?.emissiveMap) &&
-							!bodyKeywords.some((k) => (material?.name ?? '').toLowerCase().includes(k))
-					)
-
-		for (const material of fallbackScreenMaterials) {
-			setMaterialColor(material, isWhite ? '#eaf2ff' : '#000000', isWhite ? 1.35 : 0)
-			tuneMaterial(material, true)
+		for (const m of getScreenMaterials()) {
+			if (isWhite) {
+				// Powered on: plain white screen
+				m.emissiveMap = null
+				setMaterialColor(m, '#eaf2ff', 1.35)
+			} else {
+				// Idle: black screen, spinning cat via emissiveMap
+				m.emissiveMap = catTexture
+				if (m.emissive) m.emissive.set('#ffffff')
+				if (typeof m.emissiveIntensity === 'number') m.emissiveIntensity = 1.6
+				if (m.color) m.color.set('#000000')
+			}
+			tuneMaterial(m, true)
+			m.needsUpdate = true
 		}
 	}
 
@@ -119,6 +155,27 @@
 		return () => {
 			outlinedObjects.update((list) => list.filter((o) => o !== obj))
 		}
+	})
+
+	// Spin the cat logo on the canvas each frame when idle
+	useTask((delta) => {
+		if (isPowered || !catCtx || !catTexture || !catImg) return
+
+		angle += delta * 0.75 // ~0.75 rad/s — one full rotation every ~8s
+
+		const size = 512
+		const logoSize = 260
+		catCtx.clearRect(0, 0, size, size)
+		catCtx.fillStyle = '#000000'
+		catCtx.fillRect(0, 0, size, size)
+		catCtx.save()
+		catCtx.translate(size / 3.3, size / 2)
+		catCtx.rotate(angle)
+		catCtx.drawImage(catImg, -logoSize / 2, -logoSize / 2, logoSize, logoSize)
+		catCtx.restore()
+
+		catTexture.needsUpdate = true
+		invalidate()
 	})
 </script>
 
