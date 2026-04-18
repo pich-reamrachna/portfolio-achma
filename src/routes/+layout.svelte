@@ -24,6 +24,10 @@
 	/>
 	<meta property="og:url" content="https://achma.site/" />
 	<meta property="og:image" content="https://achma.site/og-cover.jpg" />
+	<meta property="og:image:secure_url" content="https://achma.site/og-cover.jpg" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:image:width" content="3780" />
+	<meta property="og:image:height" content="1890" />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Achma | Portfolio" />
