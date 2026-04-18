@@ -42,7 +42,7 @@
 	const headphoneWorldPosition = new Vector3(-0.6, 0.47, -0.05)
 	const projected = new Vector3()
 	const baseCameraPosition = new Vector3(0, 1, 2)
-	const zoomTarget = new Vector3(0, 0.65, 0.55)
+	const zoomTarget = new Vector3(0, 0.85, 0.45)
 	let zoomFired = $state(false)
 	let pointerX = $state(0)
 	let pointerY = $state(0)

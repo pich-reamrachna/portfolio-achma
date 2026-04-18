@@ -165,7 +165,7 @@
 			<AssetProgressReporter onChange={handleAssetProgress} />
 			<PortfolioScene
 				onMonitorOpen={handleMonitorOpen}
-				isMonitorOn={isMonitorOn}
+				{isMonitorOn}
 				onZoomComplete={handleZoomComplete}
 				onPhoneSelect={toggleContactPopup}
 				onPhoneAnchorChange={handlePhoneAnchorChange}

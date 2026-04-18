@@ -36,13 +36,27 @@
 }
 
 @keyframes os-flicker {
-	0%   { opacity: 0; }
-	15%  { opacity: 0.65; }
-	20%  { opacity: 0.2; }
-	28%  { opacity: 0.85; }
-	34%  { opacity: 0.4; }
-	42%  { opacity: 1; }
-	100% { opacity: 1; }
+	0% {
+		opacity: 0;
+	}
+	15% {
+		opacity: 0.65;
+	}
+	20% {
+		opacity: 0.2;
+	}
+	28% {
+		opacity: 0.85;
+	}
+	34% {
+		opacity: 0.4;
+	}
+	42% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+	}
 }
 
 /* ── Titlebar ── */
@@ -114,8 +128,13 @@
 }
 
 @keyframes blink {
-	0%, 100% { opacity: 1; }
-	50%       { opacity: 0; }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
 }
 
 .os-close-btn {
@@ -131,7 +150,9 @@
 	line-height: 1;
 	cursor: pointer;
 	flex-shrink: 0;
-	transition: background 0.15s, border-color 0.15s;
+	transition:
+		background 0.15s,
+		border-color 0.15s;
 }
 
 .os-close-btn:hover {
@@ -163,7 +184,9 @@
 	font-family: 'Share Tech Mono', monospace;
 	font-size: 0.68rem;
 	cursor: pointer;
-	transition: border-color 0.12s, background 0.12s;
+	transition:
+		border-color 0.12s,
+		background 0.12s;
 }
 
 .toolbar-btn:disabled {
@@ -235,7 +258,10 @@
 	background: transparent;
 	border: none;
 	border-left: 2px solid transparent;
-	transition: background 0.1s, border-color 0.1s, color 0.1s;
+	transition:
+		background 0.1s,
+		border-color 0.1s,
+		color 0.1s;
 }
 
 .sidebar-item:hover {
@@ -283,7 +309,9 @@
 	cursor: pointer;
 	color: #c9e2f6;
 	background: transparent;
-	transition: border-color 0.15s, background 0.15s;
+	transition:
+		border-color 0.15s,
+		background 0.15s;
 }
 
 .file-icon:hover {

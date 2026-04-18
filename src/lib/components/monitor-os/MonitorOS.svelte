@@ -109,7 +109,10 @@
 				<button
 					class="sidebar-item"
 					class:active={viewState === 'desktop'}
-					onclick={() => { playClick(); goToDesktop() }}
+					onclick={() => {
+						playClick()
+						goToDesktop()
+					}}
 				>
 					<span class="sidebar-icon">[C:/]</span> Local Disk
 				</button>
@@ -119,21 +122,30 @@
 				<button
 					class="sidebar-item"
 					class:active={viewState === 'desktop'}
-					onclick={() => { playClick(); goToDesktop() }}
+					onclick={() => {
+						playClick()
+						goToDesktop()
+					}}
 				>
 					<span class="sidebar-icon">[DIR]</span> Desktop
 				</button>
 				<button
 					class="sidebar-item"
 					class:active={viewState === 'projects' || viewState === 'project-detail'}
-					onclick={() => { playClick(); navigate('projects') }}
+					onclick={() => {
+						playClick()
+						navigate('projects')
+					}}
 				>
 					<span class="sidebar-icon">[DIR]</span> Projects
 				</button>
 				<button
 					class="sidebar-item"
 					class:active={viewState === 'about'}
-					onclick={() => { playClick(); navigate('about') }}
+					onclick={() => {
+						playClick()
+						navigate('about')
+					}}
 				>
 					<span class="sidebar-icon">[TXT]</span> About Me
 				</button>
@@ -144,16 +156,27 @@
 		<main class="os-content">
 			{#if viewState === 'desktop'}
 				<div class="file-grid">
-					<button class="file-icon" onclick={() => { playClick(); navigate('projects') }}>
+					<button
+						class="file-icon"
+						onclick={() => {
+							playClick()
+							navigate('projects')
+						}}
+					>
 						<span class="file-chip dir">[DIR]</span>
 						<small>Projects</small>
 					</button>
-					<button class="file-icon" onclick={() => { playClick(); navigate('about') }}>
+					<button
+						class="file-icon"
+						onclick={() => {
+							playClick()
+							navigate('about')
+						}}
+					>
 						<span class="file-chip txt">[TXT]</span>
 						<small>About Me.txt</small>
 					</button>
 				</div>
-
 			{:else if viewState === 'about'}
 				<div class="text-file-view">
 					<div class="text-file-header">
@@ -162,17 +185,21 @@
 					</div>
 					<p class="text-file-body">{aboutMeText}</p>
 				</div>
-
 			{:else if viewState === 'projects'}
 				<div class="file-grid">
 					{#each projectFiles as project (project.name)}
-						<button class="file-icon" onclick={() => { playClick(); openProject(project) }}>
+						<button
+							class="file-icon"
+							onclick={() => {
+								playClick()
+								openProject(project)
+							}}
+						>
 							<span class="file-chip prj">[PRJ]</span>
 							<small>{project.name}</small>
 						</button>
 					{/each}
 				</div>
-
 			{:else if viewState === 'project-detail' && selectedProject}
 				<article class="project-detail">
 					<h2 class="detail-title">
@@ -208,6 +235,12 @@
 		<span class="status-dot">●</span>
 		<span>ONLINE</span>
 		<span class="status-spacer"></span>
-		<span>{new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+		<span
+			>{new Date().toLocaleDateString('en-US', {
+				month: 'short',
+				day: '2-digit',
+				year: 'numeric'
+			})}</span
+		>
 	</footer>
 </div>

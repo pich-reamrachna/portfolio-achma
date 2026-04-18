@@ -1,7 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(xargs cat *)"
-    ]
-  }
+	"permissions": {
+		"allow": ["Bash(xargs cat *)"]
+	}
 }

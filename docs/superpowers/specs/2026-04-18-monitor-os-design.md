@@ -1,4 +1,5 @@
 # Monitor OS — Design Spec
+
 **Date:** 2026-04-18
 
 ## Overview
@@ -12,6 +13,7 @@ When the user clicks the 3D monitor model, the camera zooms in cinematically tow
 **Trigger:** User clicks the monitor mesh in the Three.js scene.
 
 **Animation:**
+
 - A new `zoomingToMonitor: boolean` state activates in `PortfolioScene.svelte`
 - Zoom target position: `[0, 0.65, 0.55]` (close enough to fill view with monitor screen)
 - The `useTask` loop lerps toward this target with factor `0.055` (~700ms to arrive)
@@ -19,6 +21,7 @@ When the user clicks the 3D monitor model, the camera zooms in cinematically tow
 - While OS is open, Threlte render loop switches to `demand` mode to pause unnecessary GPU work
 
 **On OS close:**
+
 - `monitorOSOpen = false` → OS fades out
 - Render loop resumes (`auto` mode)
 - Camera lerps back to base position `[0, 1, 2]` with normal factor `0.065`
@@ -51,13 +54,14 @@ When the user clicks the 3D monitor model, the camera zooms in cinematically tow
 
 **Navigation states:**
 
-| State | Content |
-|---|---|
-| `desktop` | "About Me.txt" + "Projects/" folder icons |
-| `projects` | Grid of `.prj` file icons, one per project |
+| State            | Content                                                |
+| ---------------- | ------------------------------------------------------ |
+| `desktop`        | "About Me.txt" + "Projects/" folder icons              |
+| `projects`       | Grid of `.prj` file icons, one per project             |
 | `project-detail` | Selected project: description, stack, year, highlights |
 
 **Address bar examples:**
+
 - `C:/Desktop/`
 - `C:/Desktop/Projects/`
 - `C:/Desktop/Projects/Portfolio 3D.prj`
@@ -109,20 +113,24 @@ click OS close button
 ## 5. Files
 
 ### Modified
+
 - `src/routes/+page.svelte` — replace `hologramOpen/monitorOn` state with `monitorOSOpen`; add `onZoomComplete` handler
 - `src/lib/components/scene/PortfolioScene.svelte` — add `zoomingToMonitor` state, zoom target lerp, `onZoomComplete` prop
 
 ### New
+
 - `src/lib/components/monitor-os/MonitorOS.svelte`
 - `src/lib/components/monitor-os/monitor-os.css`
 
 ### Deleted
+
 - `src/lib/components/hologram/HologramDesktop.svelte`
 - `src/lib/components/hologram/HologramTopbar.svelte`
 - `src/lib/components/hologram/HologramTaskbar.svelte`
 - `src/lib/components/hologram/hologram.css`
 
 ### Unchanged
+
 - `src/lib/data/projects.ts` — imported directly by `MonitorOS`
 - `src/lib/components/scene/Computer.svelte` — no changes needed
 - Phone/headphone popups — unaffected
