@@ -142,10 +142,10 @@
 	height: 28px;
 	display: grid;
 	place-items: center;
-	border: 1px solid rgba(255, 90, 90, 0.4);
+	border: 1px solid #7a2020;
 	border-radius: 4px;
-	background: rgba(255, 70, 70, 0.08);
-	color: rgba(255, 140, 140, 0.9);
+	background: #1a1014;
+	color: #ff8c8c;
 	font-size: 1.15rem;
 	line-height: 1;
 	cursor: pointer;
@@ -156,7 +156,7 @@
 }
 
 .os-close-btn:hover {
-	background: rgba(255, 70, 70, 0.22);
+	background: #2d1010;
 	border-color: rgba(255, 90, 90, 0.75);
 }
 
@@ -265,13 +265,13 @@
 }
 
 .sidebar-item:hover {
-	background: rgba(89, 186, 255, 0.07);
+	background: #0d1e2e;
 	color: #e6f5ff;
 }
 
 .sidebar-item.active {
 	border-left-color: #59baff;
-	background: rgba(89, 186, 255, 0.1);
+	background: #0f2030;
 	color: #e6f5ff;
 }
 
@@ -344,26 +344,26 @@
 }
 
 .file-chip.dir {
-	border: 1px solid rgba(255, 200, 80, 0.42);
-	background: rgba(220, 163, 73, 0.15);
+	border: 1px solid #6b5010;
+	background: #1e1808;
 	color: #ffd88a;
 }
 
 .file-chip.txt {
-	border: 1px solid rgba(89, 186, 255, 0.42);
-	background: rgba(89, 186, 255, 0.1);
+	border: 1px solid #1a4a6a;
+	background: #0a1e30;
 	color: #91d4ff;
 }
 
 .file-chip.prj {
-	border: 1px solid rgba(160, 120, 255, 0.42);
-	background: rgba(140, 100, 255, 0.12);
+	border: 1px solid #3d2870;
+	background: #130d28;
 	color: #c5a6ff;
 }
 
 /* About text view */
 .text-file-view {
-	max-width: 660px;
+	max-width: 1000px;
 }
 
 .text-file-header {
@@ -389,85 +389,507 @@
 	white-space: pre-wrap;
 }
 
-/* Project detail */
-.project-detail {
-	max-width: 700px;
-}
-
-.detail-title {
-	font-size: 1.45rem;
-	font-weight: 600;
-	color: #e6f5ff;
-	margin: 0 0 0.6rem;
-}
-
-.detail-ext {
-	font-family: 'Share Tech Mono', monospace;
-	font-size: 0.8rem;
-	color: rgba(89, 186, 255, 0.45);
-	margin-left: 3px;
-}
-
-.detail-desc {
-	color: #a9c8df;
-	line-height: 1.6;
-	margin: 0 0 1.25rem;
-	font-size: 0.9rem;
-}
-
-.detail-meta-row {
+/* ── Dossier: two-column layout ── */
+.dossier {
 	display: flex;
-	gap: 0.65rem;
-	flex-wrap: wrap;
-	margin-bottom: 1.25rem;
+	gap: 1.25rem;
+	height: 100%;
+	align-items: flex-start;
 }
 
-.detail-meta {
+/* ── Left profile card ── */
+.dossier-card {
+	width: 36%;
+	flex-shrink: 0;
+	background: #040c1a;
+	border: 1px solid rgba(89, 186, 255, 0.3);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+/* CRT scanlines */
+.dossier-card::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		0deg,
+		transparent,
+		transparent 2px,
+		rgba(89, 186, 255, 0.022) 2px,
+		rgba(89, 186, 255, 0.022) 3px
+	);
+	pointer-events: none;
+	z-index: 3;
+}
+
+.card-class-bar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.38rem 0.6rem;
+	background: #120407;
+	border-bottom: 1px solid rgba(255, 50, 80, 0.28);
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.5rem;
+	letter-spacing: 0.2em;
+	color: #ff8899;
+	flex-shrink: 0;
+}
+
+.card-live {
+	color: #3ddc84;
+	font-size: 0.5rem;
+	animation: blink 2.4s step-end infinite;
+}
+
+/* Monogram visual area */
+.card-visual {
+	position: relative;
+	flex: 1;
+	min-height: 350px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #020810;
+	overflow: hidden;
+}
+
+.card-grid {
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(rgba(89, 186, 255, 0.055) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(89, 186, 255, 0.055) 1px, transparent 1px);
+	background-size: 18px 18px;
+	animation: grid-scroll 10s linear infinite;
+}
+
+@keyframes grid-scroll {
+	from {
+		background-position:
+			0 0,
+			0 0;
+	}
+	to {
+		background-position:
+			0 18px,
+			18px 0;
+	}
+}
+
+.card-sweep {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 50px;
+	background: linear-gradient(to bottom, transparent, rgba(89, 186, 255, 0.07) 50%, transparent);
+	animation: sweep 3.5s linear infinite;
+	pointer-events: none;
+}
+
+@keyframes sweep {
+	from {
+		top: -50px;
+	}
+	to {
+		top: 100%;
+	}
+}
+
+.card-monogram {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 5rem;
+	font-weight: 700;
+	color: transparent;
+	-webkit-text-stroke: 1px rgba(89, 186, 255, 0.4);
+	letter-spacing: 0.08em;
+	position: relative;
+	z-index: 1;
+	text-shadow: 0 0 48px rgba(89, 186, 255, 0.18);
+	user-select: none;
+}
+
+/* Project info strip */
+.card-info {
+	padding: 0.65rem 0.7rem 0.7rem;
+	border-top: 1px solid rgba(89, 186, 255, 0.18);
+	background: rgba(4, 11, 22, 0.97);
+	display: flex;
+	flex-direction: column;
+	gap: 0.22rem;
+	position: relative;
+	z-index: 1;
+}
+
+.card-obj-id {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.48rem;
+	color: rgba(89, 186, 255, 0.38);
+	letter-spacing: 0.18em;
+	margin: 0;
+}
+
+.card-name {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.84rem;
+	color: #e6f5ff;
+	margin: 0;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+
+.card-github {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.35rem;
+	padding: 0.32rem 0.6rem;
+	border: 1px solid rgba(89, 186, 255, 0.35);
+	background: #061828;
+	color: #7ec8f8;
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.58rem;
+	letter-spacing: 0.12em;
+	cursor: pointer;
+	transition:
+		background 0.15s,
+		border-color 0.15s,
+		color 0.15s;
+	width: 100%;
+	justify-content: center;
+}
+
+.card-github:hover {
+	background: #0a2238;
+	border-color: rgba(89, 186, 255, 0.7);
+	color: #c8e8ff;
+}
+
+.card-github-icon {
+	font-size: 0.7rem;
+	opacity: 0.75;
+}
+
+.card-url {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.32rem 0.6rem;
+	border: 1px solid rgba(61, 220, 132, 0.38);
+	background: #041a0e;
+	color: #5ddba0;
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.58rem;
+	letter-spacing: 0.12em;
+	cursor: pointer;
+	transition:
+		background 0.15s,
+		border-color 0.15s,
+		color 0.15s;
+	width: 100%;
+	justify-content: center;
+	margin-top: 0.28rem;
+}
+
+.card-url:hover {
+	background: #082d18;
+	border-color: rgba(61, 220, 132, 0.75);
+	color: #a0f0cc;
+}
+
+.card-url-icon {
+	font-size: 0.55rem;
+}
+
+/* Angled corner fill */
+.card-corner {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 18px 18px 0;
+	border-color: transparent rgba(89, 186, 255, 0.22) transparent transparent;
+}
+
+/* ── Right intel panel ── */
+.dossier-intel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	overflow-y: auto;
+	min-width: 0;
+}
+
+.intel-header {
+	border-bottom: 1px solid rgba(89, 186, 255, 0.14);
+	padding-bottom: 0.65rem;
+}
+
+.intel-op {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.52rem;
+	letter-spacing: 0.22em;
+	color: rgba(89, 186, 255, 0.4);
+	margin: 0 0 0.45rem;
+}
+
+.intel-meta-row {
+	display: flex;
+	gap: 1.5rem;
+}
+
+.intel-meta-pair {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.68rem;
+}
+
+.imk {
+	color: rgba(89, 186, 255, 0.48);
+}
+.ims {
+	color: rgba(89, 186, 255, 0.28);
+	margin: 0 0.22rem;
+}
+.imv {
+	color: #e6f5ff;
+	font-weight: 700;
+}
+
+.intel-desc {
+	font-size: 0.8rem;
+	color: #a0c4dc;
+	line-height: 1.68;
+	margin: 0;
+	padding: 0.6rem 0.7rem;
+	border-left: 2px solid #1a3d5a;
+	background: #0b141e;
+	white-space: pre-line;
+}
+
+.intel-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.intel-block-label {
+	font-family: 'Share Tech Mono', monospace;
+	font-size: 0.5rem;
+	letter-spacing: 0.22em;
+	color: rgba(89, 186, 255, 0.38);
+	margin: 0;
+}
+
+/* Tech signatures */
+.sig-grid {
 	display: flex;
 	flex-direction: column;
 	gap: 0.18rem;
-	padding: 0.5rem 0.7rem;
-	border: 1px solid rgba(89, 186, 255, 0.28);
-	border-radius: 6px;
-	background: rgba(10, 22, 38, 0.85);
+	padding: 0.5rem 0.6rem;
+	border: 1px solid rgba(89, 186, 255, 0.13);
+	background: rgba(4, 11, 22, 0.55);
 }
 
-.meta-label {
+.sig-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 	font-family: 'Share Tech Mono', monospace;
-	font-size: 0.58rem;
-	letter-spacing: 0.14em;
+	font-size: 0.66rem;
+}
+
+.sig-name {
+	color: #c8e8ff;
+	min-width: 88px;
+	flex-shrink: 0;
+}
+
+.sig-line {
+	flex: 1;
+	height: 1px;
+	background: repeating-linear-gradient(
+		to right,
+		rgba(89, 186, 255, 0.22) 0,
+		rgba(89, 186, 255, 0.22) 3px,
+		transparent 3px,
+		transparent 7px
+	);
+}
+
+.sig-id {
 	color: rgba(89, 186, 255, 0.45);
-	margin: 0 0 0.1rem;
-	text-transform: uppercase;
+	font-size: 0.58rem;
+	flex-shrink: 0;
 }
 
-.detail-meta strong {
-	font-size: 0.84rem;
-	color: #e6f5ff;
-}
-
-.detail-highlights {
-	border: 1px solid rgba(89, 186, 255, 0.18);
-	border-radius: 6px;
-	background: rgba(10, 22, 38, 0.6);
-	padding: 0.75rem 1rem;
-}
-
-.detail-highlights ul {
+/* Capabilities */
+.cap-list {
 	list-style: none;
 	padding: 0;
-	margin: 0.3rem 0 0;
+	margin: 0;
 }
 
-.detail-highlights li {
-	color: #b8d8f0;
-	font-size: 0.85rem;
+.cap-item {
+	display: flex;
+	gap: 0.5rem;
 	padding: 0.28rem 0;
-	border-bottom: 1px solid rgba(89, 186, 255, 0.09);
+	border-bottom: 1px solid rgba(89, 186, 255, 0.07);
+	align-items: baseline;
 }
 
-.detail-highlights li:last-child {
+.cap-item:last-child {
 	border-bottom: none;
+}
+
+.cap-mark {
+	font-family: 'Share Tech Mono', monospace;
+	color: #59baff;
+	font-size: 0.72rem;
+	flex-shrink: 0;
+}
+
+.cap-text {
+	font-size: 0.78rem;
+	color: #a0c4dc;
+	line-height: 1.4;
+}
+
+/* ── Responsive ── */
+
+/* Tablet: compress sidebar, drop address bar */
+@media (max-width: 900px) {
+	.os-address-bar {
+		display: none;
+	}
+
+	.os-sidebar {
+		width: 130px;
+	}
+
+	.toolbar-breadcrumb {
+		display: none;
+	}
+
+	.os-content {
+		padding: 1rem;
+	}
+
+	.dossier-card {
+		width: 40%;
+	}
+
+	.sig-name {
+		min-width: 72px;
+	}
+}
+
+/* Mobile: sidebar becomes horizontal strip, dossier stacks */
+@media (max-width: 600px) {
+	/* Titlebar: drop brand version text */
+	.brand-version {
+		display: none;
+	}
+
+	/* Body: column layout */
+	.os-body {
+		flex-direction: column;
+	}
+
+	/* Sidebar → horizontal nav strip */
+	.os-sidebar {
+		width: 100%;
+		height: auto;
+		flex-direction: row;
+		border-right: none;
+		border-bottom: 1px solid rgba(89, 186, 255, 0.18);
+		padding: 0;
+		overflow-x: auto;
+		overflow-y: hidden;
+		gap: 0;
+		flex-shrink: 0;
+	}
+
+	/* Hide the DRIVES section (redundant on mobile) */
+	.sidebar-section:first-child {
+		display: none;
+	}
+
+	.sidebar-section {
+		flex-direction: row;
+	}
+
+	.sidebar-label {
+		display: none;
+	}
+
+	.sidebar-item {
+		border-left: none;
+		border-bottom: 2px solid transparent;
+		padding: 0.55rem 0.85rem;
+		white-space: nowrap;
+		flex-shrink: 0;
+		font-size: 0.72rem;
+	}
+
+	.sidebar-item:hover {
+		border-bottom-color: rgba(89, 186, 255, 0.35);
+	}
+
+	.sidebar-item.active {
+		border-left-color: transparent;
+		border-bottom-color: #59baff;
+		background: rgba(89, 186, 255, 0.08);
+	}
+
+	.sidebar-icon {
+		display: none;
+	}
+
+	/* Content: less padding */
+	.os-content {
+		padding: 0.75rem;
+	}
+
+	/* Dossier: stack card above intel */
+	.dossier {
+		flex-direction: column;
+		height: auto;
+		gap: 0.85rem;
+	}
+
+	.dossier-card {
+		width: 100%;
+		clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+	}
+
+	.card-corner {
+		border-width: 0 14px 14px 0;
+	}
+
+	.card-visual {
+		min-height: 80px;
+	}
+
+	.card-monogram {
+		font-size: 3.6rem;
+	}
+
+	/* Sig grid: tighter labels */
+	.sig-name {
+		min-width: 70px;
+	}
+
+	/* Status bar: hide date on small screens */
+	.os-statusbar span:last-child {
+		display: none;
+	}
 }
 
 /* ── Status bar ── */

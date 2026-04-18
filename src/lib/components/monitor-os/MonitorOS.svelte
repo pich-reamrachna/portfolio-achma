@@ -12,7 +12,7 @@
 
 	function currentPath(): string {
 		if (viewState === 'desktop') return 'C:/Desktop/'
-		if (viewState === 'about') return 'C:/Desktop/About Me.txt'
+		if (viewState === 'about') return 'C:/Desktop/hi.txt'
 		if (viewState === 'projects') return 'C:/Desktop/Projects/'
 		if (viewState === 'project-detail' && selectedProject)
 			return `C:/Desktop/Projects/${selectedProject.name}.prj`
@@ -147,7 +147,7 @@
 						navigate('about')
 					}}
 				>
-					<span class="sidebar-icon">[TXT]</span> About Me
+					<span class="sidebar-icon">[TXT]</span> hi
 				</button>
 			</div>
 		</nav>
@@ -174,14 +174,14 @@
 						}}
 					>
 						<span class="file-chip txt">[TXT]</span>
-						<small>About Me.txt</small>
+						<small>hi.txt</small>
 					</button>
 				</div>
 			{:else if viewState === 'about'}
 				<div class="text-file-view">
 					<div class="text-file-header">
 						<span class="file-chip txt">[TXT]</span>
-						<h2>About Me.txt</h2>
+						<h2>hi.txt</h2>
 					</div>
 					<p class="text-file-body">{aboutMeText}</p>
 				</div>
@@ -201,30 +201,101 @@
 					{/each}
 				</div>
 			{:else if viewState === 'project-detail' && selectedProject}
-				<article class="project-detail">
-					<h2 class="detail-title">
-						{selectedProject.name}<span class="detail-ext">.prj</span>
-					</h2>
-					<p class="detail-desc">{selectedProject.description}</p>
-					<div class="detail-meta-row">
-						<div class="detail-meta">
-							<p class="meta-label">STACK</p>
-							<strong>{selectedProject.stack}</strong>
+				<div class="dossier">
+					<!-- ── Left profile card ── -->
+					<div class="dossier-card">
+						<div class="card-class-bar">
+							<span>// CLASSIFIED</span>
+							<span class="card-live">● ACTIVE</span>
 						</div>
-						<div class="detail-meta">
-							<p class="meta-label">YEAR</p>
-							<strong>{selectedProject.year}</strong>
+
+						<div class="card-visual">
+							<div class="card-grid"></div>
+							<div class="card-sweep"></div>
+							<span class="card-monogram">
+								{selectedProject.name
+									.split(' ')
+									.map((w) => w[0])
+									.join('')}
+							</span>
+						</div>
+
+						<div class="card-info">
+							<p class="card-obj-id">
+								OBJ-{selectedProject.year}-{selectedProject.name
+									.replace(/\s/g, '')
+									.toUpperCase()
+									.slice(0, 6)}
+							</p>
+							<h2 class="card-name">{selectedProject.name}</h2>
+							{#if selectedProject.github}
+								<button
+									class="card-github"
+									onclick={() =>
+										window.open(selectedProject!.github, '_blank', 'noopener,noreferrer')}
+								>
+									<span class="card-github-icon">⌥</span> VIEW ON GITHUB
+								</button>
+							{/if}
+							{#if selectedProject.url}
+								<button
+									class="card-url"
+									onclick={() => window.open(selectedProject!.url, '_blank', 'noopener,noreferrer')}
+								>
+									<span class="card-url-icon">▶</span> VISIT WEBSITE
+								</button>
+							{/if}
+						</div>
+
+						<span class="card-corner"></span>
+					</div>
+
+					<!-- ── Right intel panel ── -->
+					<div class="dossier-intel">
+						<div class="intel-header">
+							<p class="intel-op">-TECHNICAL DOSSIER-</p>
+							<div class="intel-meta-row">
+								<span class="intel-meta-pair">
+									<span class="imk">Status</span><span class="ims">:</span><strong class="imv"
+										>ACTIVE</strong
+									>
+								</span>
+								<span class="intel-meta-pair">
+									<span class="imk">Initiated</span><span class="ims">:</span><strong class="imv"
+										>{selectedProject.year}</strong
+									>
+								</span>
+							</div>
+						</div>
+
+						<p class="intel-desc">{selectedProject.description}</p>
+
+						<div class="intel-block">
+							<p class="intel-block-label">-TECH SIGNATURES-</p>
+							<div class="sig-grid">
+								{#each selectedProject.stack.split(', ') as tech, i (tech)}
+									<div class="sig-row">
+										<span class="sig-name">{tech}</span>
+										<span class="sig-line"></span>
+										<span class="sig-id">SIG.{String(i + 1).padStart(3, '0')}</span>
+									</div>
+								{/each}
+							</div>
+						</div>
+
+						<div class="intel-block">
+							<p class="intel-block-label">-CAPABILITIES-</p>
+							<ul class="cap-list">
+								{#each selectedProject.highlights as point (point)}
+									<li class="cap-item">
+										<span class="cap-mark">›</span>
+										<span class="cap-text">{point}</span>
+									</li>
+								{/each}
+							</ul>
 						</div>
 					</div>
-					<div class="detail-highlights">
-						<p class="meta-label">HIGHLIGHTS</p>
-						<ul>
-							{#each selectedProject.highlights as point (point)}
-								<li>› {point}</li>
-							{/each}
-						</ul>
-					</div>
-				</article>
+				</div>
 			{/if}
 		</main>
 	</div>

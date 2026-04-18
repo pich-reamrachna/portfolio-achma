@@ -4,17 +4,35 @@ export type ProjectFile = {
 	stack: string
 	year: string
 	highlights: string[]
+	github?: string
+	url?: string
 }
 
-export const aboutMeText =
-	'I build immersive portfolio experiences that blend interactive 3D scenes with practical frontend engineering. My focus is design clarity, smooth interactions, and memorable UX.'
+export const aboutMeText = `
+Hi, my name is Rachna, but I also go by Achma. I'm currently a third-year Cybersecurity student at the American University of Phnom Penh.
+
+This 3D portfolio is where I combine my technical work with my creative interests. Growing up, I was always drawn to manga, animation, and games, which inspired me to express my artistic side through this project. You might notice that the design is inspired by the game "Welcome to the Game."
+
+Yes, that is the name of the game.
+
+My interest in cybersecurity wasn’t something I had from the start—it developed over time. I was inspired by one of my professors, whose passion and charisma made the field genuinely exciting to explore. Since then, I’ve been working toward becoming a Cybersecurity Analyst.
+
+My projects range from web development to hands-on security work like honeypot testing. I also analyze major data breaches, such as the Marriott breach, conduct vulnerability assessments through penetration testing, and evaluate the cybersecurity posture of my own university. These works are documented in the Report section of this portfolio.
+
+I always strive to give my best in everything I do, while continuously learning and improving every day. If you're interested in connecting, feel free to reach out!
+`
 
 export const projectFiles: ProjectFile[] = [
 	{
 		name: 'Portfolio 3D',
-		description: 'Interactive desk portfolio built with cinematic camera and scene composition.',
-		stack: 'SvelteKit, Threlte, Three.js',
+		description: `Interactive desk portfolio built with cinematic camera and scene composition.
+		
+		This project is written in TypeScript, using the SvelteKit framework. Three.js and Threlte are used in order to render and manipulate 3D assets.
+		With no experience with 3D models, AI agents such as Codex and ClaudeCode has been of great help in making my vision comes to life.
+		Since we're working with 3D assets, it is to be expected that rendering will be a pain so alot of effort was spent of performance optimization.`,
+		stack: 'SvelteKit, TypeScript, Threlte, Three.js',
 		year: '2026',
+		github: 'https://github.com/pich-reamrachna/portfolio-achma',
 		highlights: [
 			'Interactive 3D scene',
 			'Custom lighting and ambience',
@@ -22,24 +40,46 @@ export const projectFiles: ProjectFile[] = [
 		]
 	},
 	{
-		name: 'Commerce UI',
-		description: 'Modern shopping experience with cart, product states, and quick checkout.',
+		name: 'Japanese Quiz Game',
+		description: `A fun web-based game designed to test your Japanese skills.
+
+		I was the team lead for this project, working on both the UI and mainly the backend, where I handled the server-side logic to keep the game fair and secure.
+		I also set up the development environment, managed the CI workflow, and reviewed my teammates’ pull requests to keep everything running smoothly.`,
 		stack: 'SvelteKit, TypeScript',
-		year: '2025',
-		highlights: ['Reusable product cards', 'Checkout state machine', 'Mobile-first layout']
+		year: '2026',
+		github: 'https://github.com/pich-reamrachna/quiz-game',
+		url: 'https://quiz-game-flame-alpha.vercel.app/',
+		highlights: [
+			'Randomized Questions',
+			'Countdown Timer',
+			'Global Scoreboard',
+			'Cool UI and Music'
+		]
 	},
 	{
-		name: 'Analytics Board',
-		description: 'KPI-focused dashboard with chart panels and filter workflows.',
-		stack: 'Svelte, REST APIs',
+		name: 'Human-Pose Follower Robot',
+		description: `This project focuses on developing a robot that responds to human body poses in real time.
+
+		I collected and prepared my own dataset to train a YOLOv8 pose classification model. The trained model is then integrated into the system to control the robot’s movements based on predefined human poses.
+		`,
+		stack: 'Python',
 		year: '2025',
-		highlights: ['Filterable dashboards', 'Custom chart widgets', 'Role-based views']
+		github: 'https://github.com/pich-reamrachna/Human-Pose-Follower',
+		highlights: [
+			'Custom dataset collection',
+			'YOLOv8 pose classification trained model',
+			'Robot movement control'
+		]
 	},
 	{
-		name: 'Realtime Chat',
-		description: 'Rooms, presence, and live messaging interactions.',
-		stack: 'WebSocket, Svelte',
-		year: '2024',
+		name: 'Y-Social',
+		description: `An alternate to the popular social media app "X". 
+		
+		As of right now, you are able to create a post and like posts, as well as view yours and others profiles.`,
+		stack: 'SvelteKit, TypeScript',
+		year: '2026',
+		github: 'https://github.com/pich-reamrachna/social-media',
+		url: 'https://social-media-one-virid.vercel.app/',
 		highlights: ['Realtime presence', 'Conversation threading', 'Typing/read indicators']
 	}
 ]
