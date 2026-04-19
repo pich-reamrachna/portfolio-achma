@@ -1,3 +1,97 @@
+export type CreditAsset = {
+	name: string
+	creator: string
+	license: string
+	url?: string
+	icon: string
+	hp: number
+	ability: string
+}
+
+export const creditAssets: CreditAsset[] = [
+	{
+		name: 'Monitor',
+		creator: 'Hannnes92',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/pHXHN',
+		icon: '⬜',
+		hp: 180,
+		ability: 'Display Pulse'
+	},
+	{
+		name: 'Desk',
+		creator: 'draakon_4d',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/oDQ7z',
+		icon: '▬',
+		hp: 220,
+		ability: 'Surface Hold'
+	},
+	{
+		name: 'Keyboard',
+		creator: 'akiprensky',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/oDo7H',
+		icon: '▤',
+		hp: 95,
+		ability: 'Key Strike'
+	},
+	{
+		name: 'Lamp',
+		creator: 'Mehdi Shahsavan',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/oPyrG',
+		icon: '◉',
+		hp: 75,
+		ability: 'Ambient Glow'
+	},
+	{
+		name: 'iPhone',
+		creator: 'wes',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/oPyrG',
+		icon: '▮',
+		hp: 140,
+		ability: 'Signal Ping'
+	},
+	{
+		name: 'Headphone',
+		creator: 'ChristyHsu',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/otWKy',
+		icon: '◎',
+		hp: 110,
+		ability: 'Audio Surge'
+	},
+	{
+		name: 'Wall Panel',
+		creator: 'iidstudio',
+		license: 'cgtrader',
+		url: 'https://www.cgtrader.com/free-3d-models/interior/house-interior/wall-decorative-light-dynamic-model-pre-installed-lighting-27489852-31e9-4186-82f5-4b37105d4032',
+		icon: '▧',
+		hp: 300,
+		ability: 'Scene Anchor'
+	},
+	{
+		name: 'Mouse',
+		creator: 'JorgeAlfredOwO',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/oRDS9',
+		icon: '⌇',
+		hp: 60,
+		ability: 'Cursor Trace'
+	},
+	{
+		name: 'Mouse Pad',
+		creator: 'supahot',
+		license: 'Sketchfab',
+		url: 'https://skfb.ly/p9wnt',
+		icon: '⌇',
+		hp: 60,
+		ability: 'Mouse Anchor'
+	}
+]
+
 export type ProjectFile = {
 	name: string
 	description: string

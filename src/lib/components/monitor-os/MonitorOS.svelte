@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { aboutMeText, projectFiles, type ProjectFile } from '$lib/data/projects.js'
+	import { aboutMeText, projectFiles, creditAssets, type ProjectFile } from '$lib/data/projects.js'
 	import './monitor-os.css'
 
-	type ViewState = 'desktop' | 'about' | 'projects' | 'project-detail'
+	type ViewState = 'desktop' | 'about' | 'projects' | 'project-detail' | 'credits'
 
 	let { open = false, onClose }: { open?: boolean; onClose: () => void } = $props()
 
@@ -16,12 +16,14 @@
 		if (viewState === 'projects') return 'C:/Desktop/Projects/'
 		if (viewState === 'project-detail' && selectedProject)
 			return `C:/Desktop/Projects/${selectedProject.name}.prj`
+		if (viewState === 'credits') return 'C:/Desktop/Credits/'
 		return 'C:/'
 	}
 
 	function itemCount(): string {
-		if (viewState === 'desktop') return '2 items'
+		if (viewState === 'desktop') return '3 items'
 		if (viewState === 'projects') return `${projectFiles.length} items`
+		if (viewState === 'credits') return `${creditAssets.length} items`
 		return '1 item'
 	}
 
@@ -149,6 +151,16 @@
 				>
 					<span class="sidebar-icon">[TXT]</span> hi
 				</button>
+				<button
+					class="sidebar-item"
+					class:active={viewState === 'credits'}
+					onclick={() => {
+						playClick()
+						navigate('credits')
+					}}
+				>
+					<span class="sidebar-icon">[CRD]</span> Credits
+				</button>
 			</div>
 		</nav>
 
@@ -175,6 +187,16 @@
 					>
 						<span class="file-chip txt">[TXT]</span>
 						<small>hi.txt</small>
+					</button>
+					<button
+						class="file-icon"
+						onclick={() => {
+							playClick()
+							navigate('credits')
+						}}
+					>
+						<span class="file-chip crd">[CRD]</span>
+						<small>Credits</small>
 					</button>
 				</div>
 			{:else if viewState === 'about'}
@@ -295,6 +317,56 @@
 							</ul>
 						</div>
 					</div>
+				</div>
+			{:else if viewState === 'credits'}
+				<div class="credits-grid">
+					{#each creditAssets as asset, i (asset.name)}
+						<div class="credit-card">
+							<div class="credit-header">
+								<span class="credit-type-badge">3D MODEL</span>
+								<span class="credit-hp">HP<span class="credit-hp-val">{asset.hp}</span></span>
+							</div>
+
+							<div class="credit-visual">
+								<div class="credit-grid-bg"></div>
+								<span class="credit-icon">{asset.icon}</span>
+							</div>
+
+							<div class="credit-body">
+								<h3 class="credit-name">{asset.name}</h3>
+								<p class="credit-creator">by {asset.creator || '—'}</p>
+
+								<div class="credit-stats">
+									<div class="credit-stat">
+										<span class="credit-stat-key">LICENSE</span>
+										<span class="credit-stat-dots"></span>
+										<span class="credit-stat-val">{asset.license || '—'}</span>
+									</div>
+									<div class="credit-stat">
+										<span class="credit-stat-key">ABILITY</span>
+										<span class="credit-stat-dots"></span>
+										<span class="credit-stat-val">{asset.ability}</span>
+									</div>
+								</div>
+
+								{#if asset.url}
+									<button
+										class="credit-visit-btn"
+										onclick={() => window.open(asset.url, '_blank', 'noopener,noreferrer')}
+									>
+										<span>▶</span> VISIT SOURCE
+									</button>
+								{/if}
+							</div>
+
+							<div class="credit-card-num">
+								ASSET-{String(i + 1).padStart(3, '0')}/{String(creditAssets.length).padStart(
+									3,
+									'0'
+								)}
+							</div>
+						</div>
+					{/each}
 				</div>
 			{/if}
 		</main>
