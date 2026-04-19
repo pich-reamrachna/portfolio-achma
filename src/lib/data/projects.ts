@@ -1,3 +1,39 @@
+export type ReportFile = {
+	name: string
+	description: string
+	date: string
+	category: string
+	pages?: number
+	url?: string
+}
+
+export const reportFiles: ReportFile[] = [
+	{
+		name: 'Marriott International Data Breach',
+		description:
+			'Security analysis of the 2018 breach affecting 500M guest records and Starwood acquisition risks',
+		date: '2025-04',
+		category: 'BREACH ANALYSIS',
+		pages: 14,
+		url: ''
+	},
+	{
+		name: 'University Cybersecurity Posture Assessment',
+		description: 'Penetration testing and vulnerability assessment of AUPP internal systems',
+		date: '2025-09',
+		category: 'PENTEST REPORT',
+		pages: 22,
+		url: ''
+	},
+	{
+		name: 'Honeypot Deployment & Threat Analysis',
+		description: 'Honeypot infrastructure setup and attacker behaviour logging over 30-day period',
+		date: '2026-01',
+		category: 'THREAT INTEL',
+		url: ''
+	}
+]
+
 export type CreditAsset = {
 	name: string
 	creator: string
