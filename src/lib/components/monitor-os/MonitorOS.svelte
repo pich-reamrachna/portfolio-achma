@@ -169,6 +169,16 @@
 				>
 					<span class="sidebar-icon">[CRD]</span> Credits
 				</button>
+				<button
+					class="sidebar-item"
+					class:active={viewState === 'reports'}
+					onclick={() => {
+						playClick()
+						navigate('reports')
+					}}
+				>
+					<span class="sidebar-icon">[RPT]</span> Reports
+				</button>
 			</div>
 		</nav>
 
@@ -205,6 +215,16 @@
 					>
 						<span class="file-chip crd">[CRD]</span>
 						<small>Credits</small>
+					</button>
+					<button
+						class="file-icon"
+						onclick={() => {
+							playClick()
+							navigate('reports')
+						}}
+					>
+						<span class="file-chip rpt">[RPT]</span>
+						<small>Reports</small>
 					</button>
 				</div>
 			{:else if viewState === 'about'}
@@ -373,6 +393,53 @@
 									'0'
 								)}
 							</div>
+						</div>
+					{/each}
+				</div>
+			{:else if viewState === 'reports'}
+				<div class="reports-list">
+					<p class="reports-section-header">-SECURITY REPORTS &amp; ASSESSMENTS-</p>
+					{#each reportFiles as report, i (report.name)}
+						<div class="report-docket" class:locked={!report.url}>
+							<div class="docket-stripe"></div>
+
+							<div class="docket-inner">
+								<div class="docket-top">
+									<span class="docket-id">
+										REPT-{report.date.split('-')[0]}-{String(i + 1).padStart(3, '0')}
+									</span>
+									<span class="docket-pdf-badge">[PDF]</span>
+									<span class="docket-classified">⚠ CONFIDENTIAL</span>
+								</div>
+
+								<h3 class="docket-title">{report.name}</h3>
+								<p class="docket-desc">{report.description}</p>
+
+								<div class="docket-footer">
+									<span>FILED: {report.date}</span>
+									<span>{report.category}</span>
+									{#if report.pages}
+										<span>{report.pages} PGS</span>
+									{/if}
+								</div>
+							</div>
+
+							{#if report.url}
+								<button
+									class="docket-action open"
+									onclick={() => window.open(report.url, '_blank', 'noopener,noreferrer')}
+								>
+									<span class="docket-action-icon">▶</span>
+									<span>OPEN</span>
+								</button>
+							{:else}
+								<button class="docket-action locked" disabled>
+									<span class="docket-action-icon">⊘</span>
+									<span>LOCKED</span>
+								</button>
+							{/if}
+
+							<div class="docket-hscan"></div>
 						</div>
 					{/each}
 				</div>
