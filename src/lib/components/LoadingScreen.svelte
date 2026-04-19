@@ -9,7 +9,7 @@
 		active?: boolean
 	}
 
-	let { onDone, progress = 0, done = false, active: _active = false }: LoadingScreenProps = $props()
+	let { onDone, progress = 0, done = false }: LoadingScreenProps = $props()
 
 	let displayPct = $state(0)
 	let phase = $state<'loading' | 'ready' | 'exiting' | 'done'>('loading')
@@ -188,7 +188,6 @@
 		box-shadow:
 			0 0 6px rgba(255, 255, 255, 0.9),
 			0 0 14px rgba(255, 255, 255, 0.5);
-		transition: width 0.15s linear;
 	}
 
 	.bar-cursor {
@@ -199,7 +198,6 @@
 		height: 10px;
 		background: #fff;
 		box-shadow: 0 0 8px #fff;
-		transition: left 0.15s linear;
 	}
 
 	/* ── Hex strip ── */
