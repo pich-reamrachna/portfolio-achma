@@ -12,25 +12,26 @@ export const reportFiles: ReportFile[] = [
 		name: 'Marriott International Data Breach',
 		description:
 			'Security analysis of the 2018 breach affecting 500M guest records and Starwood acquisition risks',
-		date: '2025-04',
+		date: '2025-09',
 		category: 'BREACH ANALYSIS',
-		pages: 14,
-		url: ''
+		pages: 13,
+		url: 'https://drive.google.com/file/d/1cHj_rD6x-AT6Gvl1Sxx3-8NqtpcY16Wk/view?usp=sharing'
 	},
 	{
 		name: 'University Cybersecurity Posture Assessment',
-		description: 'Penetration testing and vulnerability assessment of AUPP internal systems',
-		date: '2025-09',
-		category: 'PENTEST REPORT',
-		pages: 22,
-		url: ''
+		description: 'Vulnerability assessment of AUPP systems',
+		date: '2025',
+		category: 'Vulnerability Assessment Report',
+		pages: 18,
+		url: 'https://drive.google.com/file/d/1htNdBu7RAE1EBV7VVlAUeaWJlNd71n6l/view?usp=sharing'
 	},
 	{
-		name: 'Honeypot Deployment & Threat Analysis',
-		description: 'Honeypot infrastructure setup and attacker behaviour logging over 30-day period',
-		date: '2026-01',
-		category: 'THREAT INTEL',
-		url: ''
+		name: 'Metasploitable Pentest Report',
+		description: 'Penetration Testing Report on Vulnerable Machine',
+		date: '2025',
+		category: 'PENTEST',
+		pages: 12,
+		url: 'https://drive.google.com/file/d/1NSdlYMbWlJTgZUosOGE89B6UoVguv4L2/view?usp=sharing'
 	}
 ]
 
