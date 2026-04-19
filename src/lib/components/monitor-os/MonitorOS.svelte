@@ -1,8 +1,14 @@
 <script lang="ts">
-	import { aboutMeText, projectFiles, creditAssets, type ProjectFile } from '$lib/data/projects.js'
+	import {
+		aboutMeText,
+		projectFiles,
+		creditAssets,
+		reportFiles,
+		type ProjectFile
+	} from '$lib/data/projects.js'
 	import './monitor-os.css'
 
-	type ViewState = 'desktop' | 'about' | 'projects' | 'project-detail' | 'credits'
+	type ViewState = 'desktop' | 'about' | 'projects' | 'project-detail' | 'credits' | 'reports'
 
 	let { open = false, onClose }: { open?: boolean; onClose: () => void } = $props()
 
@@ -17,13 +23,15 @@
 		if (viewState === 'project-detail' && selectedProject)
 			return `C:/Desktop/Projects/${selectedProject.name}.prj`
 		if (viewState === 'credits') return 'C:/Desktop/Credits/'
+		if (viewState === 'reports') return 'C:/Desktop/Reports/'
 		return 'C:/'
 	}
 
 	function itemCount(): string {
-		if (viewState === 'desktop') return '3 items'
+		if (viewState === 'desktop') return '4 items'
 		if (viewState === 'projects') return `${projectFiles.length} items`
 		if (viewState === 'credits') return `${creditAssets.length} items`
+		if (viewState === 'reports') return `${reportFiles.length} items`
 		return '1 item'
 	}
 
